@@ -39,6 +39,7 @@ def disambiguate(keyword):
     return [keyword]
   except URLError, e:
     return [keyword]
+
 dumper = 'http://en.wikipedia.org/w/index.php?title=Special:Export&action=submit'
 def get_article_links(links):
   input_to_dump = "%0A".join(links)

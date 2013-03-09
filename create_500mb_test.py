@@ -9,7 +9,7 @@ import Queue
 random_article = 'http://en.wikipedia.org/wiki/Special:Random'
 dumper = 'http://en.wikipedia.org/w/index.php?title=Special:Export&action=submit'
 
-num_articles = 100
+num_articles = 50000
 
 def get_redirected_url(url):
     opener = urllib2.build_opener(urllib2.HTTPRedirectHandler)

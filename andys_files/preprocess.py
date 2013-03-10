@@ -3,6 +3,7 @@ from nltk.tokenize import word_tokenize, wordpunct_tokenize, sent_tokenize
 from nltk.stem import WordNetLemmatizer
 import collections
 import pickle
+from . import jason_files
 
 _STOPWORDS = ['the', 'a', 'an', 'of', 'in', 'on', 'about', 'what', 'which', 'when', 'why', 'how', 'is', 'was', 
 	'are', 'were', 'am', 'i', 'as', 'to', 'and', "'s", ',', '.', '(', ')', 'with', '/', 'but', 'not', 'dids']
@@ -90,14 +91,14 @@ def processPageLine(line, inText, infoBox, allLinks):
 									if articlesTitles[trigram] == 1:
 										#print 'here'
 										print trigram
-										# trigramAmbWords = disambiguate(trigram)
-										# ambMap[trigram] = trigramAmbWords
+										trigramAmbWords = disambiguate(trigram)
+										ambMap[trigram] = trigramAmbWords
 										index += 3
 									else:
 										bigram = currWord + '_' + nextWord
 										if articlesTitles[bigram] == 1:
-											# bigramAmbWords = disambiguate(bigram)
-											# ambMap[bigram] = bigramAmbWords
+											bigramAmbWords = disambiguate(bigram)
+											ambMap[bigram] = bigramAmbWords
 											print bigram
 											index += 2
 										else:
@@ -105,15 +106,15 @@ def processPageLine(line, inText, infoBox, allLinks):
 												unigram = currWord
 												if articlesTitles[unigram] == 1:
 													print unigram
-													# unigramAmbWords = disambiguate(unigram)
-													# ambMap[unigram] = unigramAmbWords
+													unigramAmbWords = disambiguate(unigram)
+													ambMap[unigram] = unigramAmbWords
 											index += 1
 								else:
 									bigram = currWord + '_' + nextWord
 									if articlesTitles[bigram] == 1:
 										print bigram
-										# bigramAmbWords = disambiguate(bigram)
-										# ambMap[bigram] = bigramAmbWords
+										bigramAmbWords = disambiguate(bigram)
+										ambMap[bigram] = bigramAmbWords
 										index += 2
 									else:
 										index += 1
@@ -122,8 +123,8 @@ def processPageLine(line, inText, infoBox, allLinks):
 									unigram = currWord
 									if articlesTitles[unigram] == 1:
 									 	print unigram
-										# unigramAmbWords = disambiguate(unigram)
-										# ambMap[unigram] = unigramAmbWords
+										unigramAmbWords = disambiguate(unigram)
+										ambMap[unigram] = unigramAmbWords
 								index += 1
 
 				#print line

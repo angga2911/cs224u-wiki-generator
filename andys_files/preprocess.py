@@ -209,4 +209,5 @@ exec tempString
 
 print "Calculating relatedness..."
 scores = relatedness.getRelatednessScore(ambMap, articleLinks)
-print scores
+for key, value in scores.iteritems():
+	print key[1], key[0], value

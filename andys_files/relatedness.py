@@ -4,11 +4,11 @@ import math
 import collections
 import numpy
 
-def relatednessFunction(articleA, articleB, articleLinks):
+def relatednessFunction(articleA, articleB, articleLinks, functionNumber):
 	
 	print 'calculating relatedness for ' + str(articleA) + ' and ' + str(articleB)
-	articleA = articleA.lower()
-	articleB = articleB.lower()
+	articleA = articleA.lower().replace('_', ' ')
+	articleB = articleB.lower().replace('_', ' ')
 
 	numA = 0.0
 	numB = 0.0
@@ -17,29 +17,42 @@ def relatednessFunction(articleA, articleB, articleLinks):
 	relatedness = 0.0
 	
 	if not articleA in articleLinks or not articleB in articleLinks:
-		return -1.0
+		return 0.0
 	
 	linksA = articleLinks[articleA]
 	linksB = articleLinks[articleB]
-	numA = len(linksA)
-	numB = len(linksB)
 
-	for linkA in linksA:
-		for linkB in linksB:
-			if linkA == linkB:
-				numAB += 1
+	linksASet = set(linksA)
+	linksBSet = set(linksB)
+	numA = len(linksASet)
+	numB = len(linksBSet)
+	numAB = len(linksASet.intersection(linksBSet))
 
 	maxAB = max(numA, numB)
 	minAB = min(numA, numB)
 
 	if maxAB > 0.0 and minAB > 0.0 and numAB > 0.0:
-		relatedness = (math.log(maxAB) - math.log(numAB))/(len(articleLinks) - math.log(minAB))
+		if functionNumber == 1:
+			relatedness = (math.log(maxAB) - math.log(numAB))/(len(articleLinks) - math.log(minAB))
+		elif functionNumber == 2:
+			relatedness = (math.log(numAB)+1)/(math.log(maxAB)+1)
+		print str(maxAB)
+		print str(minAB)
+		print str(numAB)
+		print str(relatedness)
+		print '------------------'
+	return relatedness
 
-	return relatedness		
+# articleLinks = {'Abraham_Lincoln': ['Andrew_Johnson'], 'Andrew_Johnson': ['Abraham_Lincoln']}
+# articleA = 'Abraham_Lincoln'
+# articleB = 'Andrew_Johnson'		
+
+# relatedness = relatednessFunction(articleA, articleB, articleLinks)
+# print relatedness
 
 def getRelatednessScore(dictionary, articleLinks):
 	articleLinks = dict((k.lower(), [v_l.lower() for v_l in v]) for k, v in articleLinks.iteritems())
-	print articleLinks
+	#print articleLinks
 
 	relatednessScores = {} # dictionary of relatedness scores for each sense of a word to surrounding unambiguous words
 	unambiguousWords = []
@@ -49,18 +62,41 @@ def getRelatednessScore(dictionary, articleLinks):
 
 	for key, ambWords in dictionary.iteritems():
 		if len(ambWords) > 1:
-			relatedness = []
 			for ambWord in ambWords:
+				relatedness = []
 				for unAmbWord in unambiguousWords:
-					relatedness.append(relatednessFunction(ambWord, unAmbWord, articleLinks))
+					relatedness.append(relatednessFunction(ambWord, unAmbWord, articleLinks,1))
 				relatednessResult = average(relatedness) 	
 				relatednessScores[(ambWord, key)] = relatednessResult
 
 	return relatednessScores
 
-def average(someList):
-	return numpy.mean(someList)
+def reverse_numeric(x, y):
+        return y - x
+#>>> sorted([5, 2, 4, 1, 3], cmp=reverse_numeric)
 
+def findMaxN(n, someList):
+	result = [-1]*n
+	for i in range(0, len(someList)):
+		#if someList[i] > result[-1]:
+			#result[-1] = someList[i]
+			#result = sorted(result, cmp=reverse_numeric)
+		smallest = min(result)
+		minIndex = result.index(min(result))
+		if someList[i] > smallest:
+			result[minIndex] = someList[i]
+
+	return result
+
+def average(someList):
+	# if len(someList) > 2:
+	# 	someList = findMaxN(3, someList)
+	#return numpy.mean(someList)
+	return someList
+
+# l = [3, 5, 2, 1, 6.3, 2]
+# max3 = findMaxN(3, l)
+# print max3
 
 def getClassiferInput(commonnessTable, relatednessTable):
 	result = []

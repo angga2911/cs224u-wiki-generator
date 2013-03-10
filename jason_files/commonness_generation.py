@@ -6,7 +6,11 @@ import xml.etree.cElementTree as etree
 namespace = "{http://www.mediawiki.org/xml/export-0.8/}"
 disamb_freq_map = {}
 
+source_dir = '500MB_FILES'
+out_dir = 'COMMONNESS_MEAS'
 def add_link(term):
+    if len(term) == 0:
+        return
     main_term = remove_last_parentheses(term)
     if main_term in disamb_freq_map:
         ind_list = disamb_freq_map[main_term]
@@ -19,7 +23,7 @@ def add_link(term):
         disamb_freq_map[main_term][term] = 1
 
 def remove_last_parentheses(term):
-    if term[-1] == ')':
+    if len(term) != 0 and term[-1] == ')':
         index = term.rfind('(')
         term = term[:index]
     return term.strip(' _')
@@ -35,7 +39,14 @@ def good_term(link):
         return False
     return True
 
-for fn in glob.glob('500MB_*.xml'):
+def h():
+    return os.path.abspath(os.path.dirname(__file__))
+
+if not os.path.exists(out_dir):
+    os.makedirs(out_dir)
+
+abs_dir_input = os.path.join(source_dir, '500MB_*.xml')
+for fn in glob.glob(abs_dir_input):
     f = open(fn, 'r')
     xml = f.read()
     root = etree.fromstring(xml)
@@ -57,6 +68,6 @@ for main_term in disamb_freq_map:
     for term in disamb_freq_map[main_term]:
         freq_map[term] = disamb_freq_map[main_term][term]
     
-json.dumps(freq_map)
-with open(os.path.basename('freq_map_'+str(int(time.time())) + '.xml'), 'wb') as local_file:
+abs_dir_output = os.path.join(h(), out_dir, 'CMN_'+str(int(time.time())) + '.xml')
+with open(os.path.abspath(abs_dir_output), 'wb') as local_file:
     local_file.write(json.dumps(freq_map))

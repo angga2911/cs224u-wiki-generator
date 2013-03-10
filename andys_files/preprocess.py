@@ -79,39 +79,40 @@ def processPageLine(line, inText, infoBox, allLinks, ambMap):
 										#print 'here'
 										#print trigram
 										trigramAmbWords = disambiguate.disambiguate(trigram)
-										ambMap[trigram] = trigramAmbWords
+										ambMap.append([trigram, trigramAmbWords])
 										index += 3
 									else:
 										bigram = currWord + '_' + nextWord
 										if articlesTitles[bigram] == 1:
 											bigramAmbWords = disambiguate.disambiguate(bigram)
-											ambMap[bigram] = bigramAmbWords
+											ambMap.append([bigram, bigramAmbWords])
 											#print bigram
 											index += 2
 										else:
 											if len(currWord) > 3 and (not currWord.lower() in _STOPWORDS):
 												unigram = currWord
-												if articlesTitles[unigram] == 1:
-													#print unigram
-													unigramAmbWords = disambiguate.disambiguate(unigram)
-													ambMap[unigram] = unigramAmbWords
+# 												if articlesTitles[unigram] == 1:
+# 												 	#print unigram
+# 												 	unigramAmbWords = disambiguate.disambiguate(unigram)
+# 												 	ambMap.append([unigram, unigramAmbWords])
+# 												 	#print unigramAmbWords
 											index += 1
 								else:
 									bigram = currWord + '_' + nextWord
 									if articlesTitles[bigram] == 1:
 										#print bigram
 										bigramAmbWords = disambiguate.disambiguate(bigram)
-										ambMap[bigram] = bigramAmbWords
+										ambMap.append([bigram, bigramAmbWords])
 										index += 2
 									else:
 										index += 1
 							else:
 								if len(currWord) > 3 and (not currWord.lower() in _STOPWORDS):
 									unigram = currWord
-									if articlesTitles[unigram] == 1:
-									 	#print unigram
-										unigramAmbWords = disambiguate.disambiguate(unigram)
-										ambMap[unigram] = unigramAmbWords
+									# if articlesTitles[unigram] == 1:
+# 									#  	#print unigram
+# 										unigramAmbWords = disambiguate.disambiguate(unigram)
+# 										ambMap.append([unigram, unigramAmbWords])
 								index += 1
 
 				#print line
@@ -152,7 +153,7 @@ if not os.path.isfile(file_path):
 	infoBox = True
 	lastLine = ''
 	allLinks = []
-	ambMap = {}
+	ambMap = []
 	for line in f:
 		line = preProcessLine(line)
 	
@@ -195,16 +196,37 @@ else:
     save = f.read()
     exec 'ambMap =' + save 
 
-print "Calculating relatedness..."
+print "Opening article links..."
 
-articleLinksFile = open('../jason_files/INCOMING_LINKS/IL_1362900357.xml', 'r')
+import glob 
+path = glob.glob('../jason_files/INCOMING_LINKS/IL*.xml')[0]
+articleLinksFile = open(path, 'r')
 
 save = articleLinksFile.read()
 tempString = 'articleLinks =' + save
 exec tempString
 
-print ambMap
-print articleLinks
+# print ambMap
+#print articleLinks
 
-scores = relatedness.getRelatednessScore(ambMap, articleLinks)
-print scores
+relatednessPath = 'relatedness.txt'
+
+if os.path.isfile(relatednessPath):
+	print "Retrieving relatedness..."
+	relatednessFile = open(relatednessPath, 'r')
+	save = relatednessFile.read()
+	tempString = 'scores =' + save
+	exec tempString
+else:
+	print "Calculating relatedness..."
+	relatednessFile = open(relatednessPath, 'w')
+	scores = relatedness.getRelatednessScore(ambMap, articleLinks)
+	print scores
+	relatednessFile.write(str(scores))
+
+
+
+
+	
+
+

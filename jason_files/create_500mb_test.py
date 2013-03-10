@@ -4,14 +4,11 @@ from bs4 import BeautifulSoup
 import urllib, urllib2, os, time, webbrowser, threading
 from urllib2 import urlopen, Request, URLError, HTTPError
 from multiprocessing import Pool
-import Queue
 
 num_articles = 50000
 directory = '500MB_FILES'
 random_article = 'http://en.wikipedia.org/wiki/Special:Random'
 dumper = 'http://en.wikipedia.org/w/index.php?title=Special:Export&action=submit'
-
-
 
 def get_redirected_url(url):
     opener = urllib2.build_opener(urllib2.HTTPRedirectHandler)

@@ -15,18 +15,19 @@ def disambiguate(keyword):
   to_return = []
   try:
     to_test = keyword + '_(disambiguation)'
-    print wikipedia + to_test
     usock = urllib2.Request(wikipedia+to_test, headers={"User-Agent" : "Magic Browser"})
     response = urllib2.urlopen(usock)
     html = response.read()
     wiki_page = BeautifulSoup(html)
     
     ulist = wiki_page.find(id='mw-content-text')
-    primary_link = ulist.p.a
-    if primary_link != None:
-      primary_link = primary_link['href'].rsplit('/', 1)[1]
+    primary_tag = ulist.p
+    if primary_tag != None:
+      primary_link = primary_tag.a
       if primary_link != None:
-        to_return.append(primary_link)
+        primary_link = primary_link['href'].rsplit('/', 1)[1]
+        if primary_link != None:
+          to_return.append(primary_link)
     for ulchild in ulist.findAll('ul'):
       for lichild in ulchild.findAll('li'):
         for link in lichild.findAll('a'):

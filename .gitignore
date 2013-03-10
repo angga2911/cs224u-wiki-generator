@@ -39,3 +39,5 @@ nosetests.xml
 *.zip
 *.pkl
 *.txt
+
+.DS_Store

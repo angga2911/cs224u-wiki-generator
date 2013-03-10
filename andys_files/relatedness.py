@@ -2,6 +2,7 @@ import sys
 import os
 import math
 import collections
+import numpy
 
 def relatedness(articleA, articleB, articleLinks):
 	numA = 0.0
@@ -28,7 +29,7 @@ def relatedness(articleA, articleB, articleLinks):
 
 	return relatedness		
 
-def getRelatednessScore(dictionary):
+def getRelatednessScore(dictionary, articleLinks):
 	relatednessScores = {} # dictionary of relatedness scores for each sense of a word to surrounding unambiguous words
 	unambiguousWords = []
 	for key, value in dictionary.iteritems():
@@ -40,11 +41,15 @@ def getRelatednessScore(dictionary):
 			relatedness = []
 			for ambWord in ambWords:
 				for unAmbWord in unambiguousWords:
-					relatedness.append(relatedness(ambWord, unAmbWord))
+					relatedness.append(relatedness(ambWord, unAmbWord, articleLinks))
 				relatednessResult = average(relatedness) 	
 				relatednessScores[(ambWord, key)] = relatednessResult
 
 	return relatednessScores
+
+def average(someList):
+	return numpy.mean(someList)
+
 
 def getClassiferInput(commonnessTable, relatednessTable):
 	result = []

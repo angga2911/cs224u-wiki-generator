@@ -4,6 +4,7 @@ from nltk.stem import WordNetLemmatizer
 import collections
 import pickle
 from jason_files import disambiguate
+import relatedness
 
 _STOPWORDS = ['the', 'a', 'an', 'of', 'in', 'on', 'about', 'what', 'which', 'when', 'why', 'how', 'is', 'was', 
 	'are', 'were', 'am', 'i', 'as', 'to', 'and', "'s", ',', '.', '(', ')', 'with', '/', 'but', 'not', 'dids']
@@ -172,6 +173,8 @@ for line in f:
 
 f.close()
 #print allLinks
-print "===========AmbMap============="
-print ambMap
-
+# print "===========AmbMap============="
+# print ambMap
+print "Calculating relatedness..."
+scores = relatedness.getRelatednessScore(ambMap, articleLinks)
+print scores

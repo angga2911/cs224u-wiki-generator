@@ -71,6 +71,36 @@ def getClassiferInput(commonnessTable, relatednessTable):
 
 	return result
 
+def getClassifierY(links, xList):
+	output = [-1]*len(xList)
+	pointer = 0
+	for i in range(0, len(xList)):
+		word = xList[i][3]
+		sense = xList[i][2]
+		pointerTemp = pointer
+		while pointerTemp < len(links):
+			link = links[pointerTemp]
+			if word.lower() == link[1].lower():
+				if sense.lower() == link[0].lower():
+					if output[i] == -1:
+						output[i] = 1
+						break
+				else:
+					if output[i] == -1:
+						output[i] = 0
+						break
+			else:
+				pointerTemp += 1 
+		if pointerTemp != len(links):
+			pointer = pointerTemp
+	
+	return output
+
+
+# xList = [[1, 1, 'tree(CS)', 'tree'], [1, 1, 'tree', 'tree'], [1, 1, 'dog', 'dog'], [1, 1, 'bar(law)', 'bar'], [1, 1, 'bar(drink)', 'bar'], [1, 1, 'tree(CS)', 'tree'], [1, 1, 'tree', 'tree']]
+# links = [['tree', 'tree'], ['bar(drink)', 'bar'], ['tree(CS)', 'tree']]
+# output = getClassifierY(links, xList)
+# print output	
 
 
 

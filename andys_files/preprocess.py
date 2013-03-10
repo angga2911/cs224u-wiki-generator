@@ -91,27 +91,28 @@ def processPageLine(line, inText, infoBox, allLinks, ambMap):
 										else:
 											if len(currWord) > 3 and (not currWord.lower() in _STOPWORDS):
 												unigram = currWord
-												if articlesTitles[unigram] == 1:
-													#print unigram
-													unigramAmbWords = disambiguate.disambiguate(unigram)
-													ambMap[unigram] = unigramAmbWords
+												# if articlesTitles[unigram] == 1:
+												# 	#print unigram
+												# 	unigramAmbWords = disambiguate.disambiguate(unigram)
+												# 	ambMap[unigram] = unigramAmbWords
+												# 	print unigramAmbWords
 											index += 1
 								else:
 									bigram = currWord + '_' + nextWord
 									if articlesTitles[bigram] == 1:
 										#print bigram
-										bigramAmbWords = disambiguate.disambiguate(bigram)
-										ambMap[bigram] = bigramAmbWords
+										# bigramAmbWords = disambiguate.disambiguate(bigram)
+										# ambMap[bigram] = bigramAmbWords
 										index += 2
 									else:
 										index += 1
 							else:
 								if len(currWord) > 3 and (not currWord.lower() in _STOPWORDS):
 									unigram = currWord
-									if articlesTitles[unigram] == 1:
-									 	#print unigram
-										unigramAmbWords = disambiguate.disambiguate(unigram)
-										ambMap[unigram] = unigramAmbWords
+									# if articlesTitles[unigram] == 1:
+									#  	#print unigram
+									# 	unigramAmbWords = disambiguate.disambiguate(unigram)
+									# 	ambMap[unigram] = unigramAmbWords
 								index += 1
 
 				#print line
@@ -195,16 +196,17 @@ else:
     save = f.read()
     exec 'ambMap =' + save 
 
-print "Calculating relatedness..."
+print "Opening article links..."
 
-articleLinksFile = open('../jason_files/INCOMING_LINKS/IL_1362900357.xml', 'r')
+articleLinksFile = open('../jason_files/INCOMING_LINKS/IL_1362899349.xml', 'r')
 
 save = articleLinksFile.read()
 tempString = 'articleLinks =' + save
 exec tempString
 
-print ambMap
-print articleLinks
+# print ambMap
+#print articleLinks
 
+print "Calculating relatedness..."
 scores = relatedness.getRelatednessScore(ambMap, articleLinks)
 print scores

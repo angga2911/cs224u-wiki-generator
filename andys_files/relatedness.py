@@ -5,12 +5,20 @@ import collections
 import numpy
 
 def relatednessFunction(articleA, articleB, articleLinks):
+	
+	print 'calculating relatedness for ' + str(articleA) + ' and ' + str(articleB)
+	articleA = articleA.lower()
+	articleB = articleB.lower()
+
 	numA = 0.0
 	numB = 0.0
 	numAB = 0.0
 	article = ''
 	relatedness = 0.0
-
+	
+	if not articleA in articleLinks or not articleB in articleLinks:
+		return -1.0
+	
 	linksA = articleLinks[articleA]
 	linksB = articleLinks[articleB]
 	numA = len(linksA)
@@ -30,6 +38,9 @@ def relatednessFunction(articleA, articleB, articleLinks):
 	return relatedness		
 
 def getRelatednessScore(dictionary, articleLinks):
+	articleLinks = dict((k.lower(), [v_l.lower() for v_l in v]) for k, v in articleLinks.iteritems())
+	print articleLinks
+
 	relatednessScores = {} # dictionary of relatedness scores for each sense of a word to surrounding unambiguous words
 	unambiguousWords = []
 	for key, value in dictionary.iteritems():

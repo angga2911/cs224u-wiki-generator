@@ -47,7 +47,7 @@ def get_article_links(links):
   try:
     usock = urllib2.Request(dumper+"&pages="+input_to_dump, headers={"User-Agent" : "Magic Browser"})
     f = urlopen(usock)
-    print 'downloading ' + dumper+"&pages="+input_to_dump
+    #print 'downloading ' + dumper+"&pages="+input_to_dump
 
     text = f.read()
     link_result = re.findall('\[\[(.*?)\]\]', text)

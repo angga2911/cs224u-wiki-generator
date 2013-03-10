@@ -1,12 +1,25 @@
-import re, os
+import re
 from nltk.tokenize import word_tokenize, wordpunct_tokenize, sent_tokenize
 from nltk.stem import WordNetLemmatizer
 import collections
 import pickle
 from jason_files import disambiguate
-import relatedness
 
+_STOPWORDS = ['the', 'a', 'an', 'of', 'in', 'on', 'about', 'what', 'which', 'when', 'why', 'how', 'is', 'was', 
+	'are', 'were', 'am', 'i', 'as', 'to', 'and', "'s", ',', '.', '(', ')', 'with', '/', 'but', 'not', 'dids']
 
+_ELIM = ['the']
+
+articlesTitles = collections.defaultdict(lambda: 0)
+f = open('title.txt', 'r')
+for line in f:
+	#print line.strip()
+	articlesTitles[line.strip()] = 1
+f.close()
+
+# pkl_file = open('articlesTitles.pkl', 'rb')
+# articlesTitles = pickle.load(pkl_file)
+# pkl_file.close()
 
 def textLine(line):
 	if len(line) > 0:
@@ -29,7 +42,7 @@ def removeExtraTags(line):
 
 	return line
 
-def processPageLine(line, inText, infoBox, allLinks, ambMap):
+def processPageLine(line, inText, infoBox, allLinks):
 	wnl = WordNetLemmatizer()
 	if inText and not infoBox:
 		if not '==' in line:
@@ -77,30 +90,30 @@ def processPageLine(line, inText, infoBox, allLinks, ambMap):
 									"""
 									if articlesTitles[trigram] == 1:
 										#print 'here'
-										#print trigram
-										trigramAmbWords = disambiguate.disambiguate(trigram)
+										print trigram
+										trigramAmbWords = disambiguate(trigram)
 										ambMap[trigram] = trigramAmbWords
 										index += 3
 									else:
 										bigram = currWord + '_' + nextWord
 										if articlesTitles[bigram] == 1:
-											bigramAmbWords = disambiguate.disambiguate(bigram)
+											bigramAmbWords = disambiguate(bigram)
 											ambMap[bigram] = bigramAmbWords
-											#print bigram
+											print bigram
 											index += 2
 										else:
 											if len(currWord) > 3 and (not currWord.lower() in _STOPWORDS):
 												unigram = currWord
 												if articlesTitles[unigram] == 1:
-													#print unigram
-													unigramAmbWords = disambiguate.disambiguate(unigram)
+													print unigram
+													unigramAmbWords = disambiguate(unigram)
 													ambMap[unigram] = unigramAmbWords
 											index += 1
 								else:
 									bigram = currWord + '_' + nextWord
 									if articlesTitles[bigram] == 1:
-										#print bigram
-										bigramAmbWords = disambiguate.disambiguate(bigram)
+										print bigram
+										bigramAmbWords = disambiguate(bigram)
 										ambMap[bigram] = bigramAmbWords
 										index += 2
 									else:
@@ -109,8 +122,8 @@ def processPageLine(line, inText, infoBox, allLinks, ambMap):
 								if len(currWord) > 3 and (not currWord.lower() in _STOPWORDS):
 									unigram = currWord
 									if articlesTitles[unigram] == 1:
-									 	#print unigram
-										unigramAmbWords = disambiguate.disambiguate(unigram)
+									 	print unigram
+										unigramAmbWords = disambiguate(unigram)
 										ambMap[unigram] = unigramAmbWords
 								index += 1
 
@@ -126,85 +139,36 @@ def preProcessLine(line):
 
 	return line
 
-file_path = 'AMBIGUITY_MAP/ambiguity.xml'
-if not os.path.isfile(file_path):
+f = open('tiny-wiki.xml', 'r')
 
-	_STOPWORDS = ['the', 'a', 'an', 'of', 'in', 'on', 'about', 'what', 'which', 'when', 'why', 'how', 'is', 'was', 
-	'are', 'were', 'am', 'i', 'as', 'to', 'and', "'s", ',', '.', '(', ')', 'with', '/', 'but', 'not', 'dids']
+inPage = False
+inText = False
+infoBox = True
+lastLine = ''
+allLinks = []
+for line in f:
+	line = preProcessLine(line)
 
-	_ELIM = ['the']
+	if line == '<page>':
+		inPage = True
+	if line == '</page>':
+		inPage = False
 
-	articlesTitles = collections.defaultdict(lambda: 0)
-	f = open('title.txt', 'r')
-	for line in f:
-	#print line.strip()
-		articlesTitles[line.strip()] = 1
-	f.close()
+	if '<text' in line:
+		inText = True
+	if '</text>' in line:
+		inText = False
 
-	# pkl_file = open('articlesTitles.pkl', 'rb')
-	# articlesTitles = pickle.load(pkl_file)
-	# pkl_file.close()
+	if '{{Infobox' in line or '{{Persondata' in line:
+		infoBox = True;
+	if infoBox and lastLine == '}}':
+		infoBox = False;
 
-	f = open('tiny-wiki.xml', 'r')
-	
-	inPage = False
-	inText = False
-	infoBox = True
-	lastLine = ''
-	allLinks = []
-	ambMap = {}
-	for line in f:
-		line = preProcessLine(line)
-	
-		if line == '<page>':
-			inPage = True
-		if line == '</page>':
-			inPage = False
-	
-		if '<text' in line:
-			inText = True
-		if '</text>' in line:
-			inText = False
-	
-		if '{{Infobox' in line or '{{Persondata' in line:
-			infoBox = True;
-		if infoBox and lastLine == '}}':
-			infoBox = False;
-	
-		if inPage:
-			processPageLine(line, inText, infoBox, allLinks, ambMap)
-	
-		lastLine = line
-	
-	f.close()
-	#print allLinks
-	# print "===========AmbMap============="
-	# print ambMap
-	
-	# save ambMap
-	out_dir = 'AMBIGUITY_MAP'
-	if not os.path.exists(out_dir):
-	    os.makedirs(out_dir)
-	    
-	ambi = open(file_path,'w')
-	ambi.write(str(ambMap))
+	if inPage:
+		processPageLine(line, inText, infoBox, allLinks)
 
-else:
-    
-    f = open(file_path, 'r')
-    save = f.read()
-    exec 'ambMap =' + save 
+	lastLine = line
 
-print "Calculating relatedness..."
+f.close()
+#print allLinks
 
-articleLinksFile = open('../jason_files/INCOMING_LINKS/IL_1362900357.xml', 'r')
-
-save = articleLinksFile.read()
-tempString = 'articleLinks =' + save
-exec tempString
-
-print ambMap
-print articleLinks
-
-scores = relatedness.getRelatednessScore(ambMap, articleLinks)
-print scores

@@ -4,7 +4,7 @@ import math
 import collections
 import numpy
 
-def relatedness(articleA, articleB, articleLinks):
+def relatednessFunction(articleA, articleB, articleLinks):
 	numA = 0.0
 	numB = 0.0
 	numAB = 0.0
@@ -41,7 +41,7 @@ def getRelatednessScore(dictionary, articleLinks):
 			relatedness = []
 			for ambWord in ambWords:
 				for unAmbWord in unambiguousWords:
-					relatedness.append(relatedness(ambWord, unAmbWord, articleLinks))
+					relatedness.append(relatednessFunction(ambWord, unAmbWord, articleLinks))
 				relatednessResult = average(relatedness) 	
 				relatednessScores[(ambWord, key)] = relatednessResult
 

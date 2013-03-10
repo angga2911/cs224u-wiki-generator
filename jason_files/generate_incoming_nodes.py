@@ -18,8 +18,8 @@ def add_link(title, link):
 def h():
     return os.path.abspath(os.path.dirname(__file__))
 
-if not os.path.exists(source_dir):
-    os.makedirs(source_dir)
+if not os.path.exists(out_dir):
+    os.makedirs(out_dir)
 
 abs_dir_input = os.path.join(source_dir, '500MB_*.xml')
 for fn in glob.glob(abs_dir_input):

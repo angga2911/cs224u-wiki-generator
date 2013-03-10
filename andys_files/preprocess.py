@@ -172,4 +172,6 @@ for line in f:
 
 f.close()
 #print allLinks
+print "===========AmbMap============="
+print ambMap
 

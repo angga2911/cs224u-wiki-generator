@@ -42,7 +42,7 @@ def removeExtraTags(line):
 
 	return line
 
-def processPageLine(line, inText, infoBox, allLinks):
+def processPageLine(line, inText, infoBox, allLinks, ambMap):
 	wnl = WordNetLemmatizer()
 	if inText and not infoBox:
 		if not '==' in line:
@@ -90,30 +90,30 @@ def processPageLine(line, inText, infoBox, allLinks):
 									"""
 									if articlesTitles[trigram] == 1:
 										#print 'here'
-										print trigram
-										trigramAmbWords = disambiguate(trigram)
+										#print trigram
+										trigramAmbWords = disambiguate.disambiguate(trigram)
 										ambMap[trigram] = trigramAmbWords
 										index += 3
 									else:
 										bigram = currWord + '_' + nextWord
 										if articlesTitles[bigram] == 1:
-											bigramAmbWords = disambiguate(bigram)
+											bigramAmbWords = disambiguate.disambiguate(bigram)
 											ambMap[bigram] = bigramAmbWords
-											print bigram
+											#print bigram
 											index += 2
 										else:
 											if len(currWord) > 3 and (not currWord.lower() in _STOPWORDS):
 												unigram = currWord
 												if articlesTitles[unigram] == 1:
-													print unigram
-													unigramAmbWords = disambiguate(unigram)
+													#print unigram
+													unigramAmbWords = disambiguate.disambiguate(unigram)
 													ambMap[unigram] = unigramAmbWords
 											index += 1
 								else:
 									bigram = currWord + '_' + nextWord
 									if articlesTitles[bigram] == 1:
-										print bigram
-										bigramAmbWords = disambiguate(bigram)
+										#print bigram
+										bigramAmbWords = disambiguate.disambiguate(bigram)
 										ambMap[bigram] = bigramAmbWords
 										index += 2
 									else:
@@ -122,8 +122,8 @@ def processPageLine(line, inText, infoBox, allLinks):
 								if len(currWord) > 3 and (not currWord.lower() in _STOPWORDS):
 									unigram = currWord
 									if articlesTitles[unigram] == 1:
-									 	print unigram
-										unigramAmbWords = disambiguate(unigram)
+									 	#print unigram
+										unigramAmbWords = disambiguate.disambiguate(unigram)
 										ambMap[unigram] = unigramAmbWords
 								index += 1
 
@@ -146,6 +146,7 @@ inText = False
 infoBox = True
 lastLine = ''
 allLinks = []
+ambMap = {}
 for line in f:
 	line = preProcessLine(line)
 
@@ -165,7 +166,7 @@ for line in f:
 		infoBox = False;
 
 	if inPage:
-		processPageLine(line, inText, infoBox, allLinks)
+		processPageLine(line, inText, infoBox, allLinks, ambMap)
 
 	lastLine = line
 

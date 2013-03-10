@@ -9,8 +9,6 @@ def relatedness(articleA, articleB, articleLinks):
 	numAB = 0.0
 	article = ''
 	relatedness = 0.0
-	#numOutgoing = collections.defaultdict(lambda: 0)
-	#numIncoming = collections.defaultdict(lambda: 0)
 
 	linksA = articleLinks[articleA]
 	linksB = articleLinks[articleB]
@@ -21,17 +19,6 @@ def relatedness(articleA, articleB, articleLinks):
 		for linkB in linksB:
 			if linkA == linkB:
 				numAB += 1
-
-	# for article, links in articleLinks.iteritems():
-	# 	Each link in an article counts as an instance
-	# 	for link in links:
-	# 		if articleA.lower() == link.lower():
-	# 			numA += 1
-	# 		if articleB.lower() == link.lower():
-	# 			numB += 1
-
-	# 	if articleA in links and articleB in links:
-	# 		numAB += 1
 
 	maxAB = max(numA, numB)
 	minAB = min(numA, numB)

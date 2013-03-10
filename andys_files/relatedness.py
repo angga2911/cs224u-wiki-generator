@@ -24,7 +24,7 @@ def relatedness(articleA, articleB, articleLinks):
 	minAB = min(numA, numB)
 
 	if maxAB > 0.0 and minAB > 0.0 and numAB > 0.0:
-		relatedness = (math.log(maxAB) - math.log(numAB))/(len(linksMat) - math.log(minAB))
+		relatedness = (math.log(maxAB) - math.log(numAB))/(len(articleLinks) - math.log(minAB))
 
 	return relatedness		
 

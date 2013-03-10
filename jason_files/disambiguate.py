@@ -59,8 +59,8 @@ def get_article_links(links):
   return []
   
 
-print get_article_links(disambiguate('Michael_Jordan'))
-print get_article_links(disambiguate('Cube'))
+#print get_article_links(disambiguate('Michael_Jordan'))
+#print get_article_links(disambiguate('Cube'))
 #print get_article_links(disambiguate('Andrew_Ng'))
 #print disambiguate('Andrew_Ng')
 #print disambiguate('Lexicon')

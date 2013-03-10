@@ -1,6 +1,6 @@
 #! /usr/bin/python
 
-from BeautifulSoup import BeautifulSoup
+from bs4 import BeautifulSoup
 import urllib
 import urllib2
 import os

@@ -1,6 +1,6 @@
 #! /usr/bin/python
 
-from BeautifulSoup import BeautifulSoup
+from bs4 import BeautifulSoup
 import urllib, urllib2, os, time, webbrowser, threading
 from urllib2 import urlopen, Request, URLError, HTTPError
 from multiprocessing import Pool

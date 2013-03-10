@@ -1,13 +1,8 @@
 #! /usr/bin/python
 
 from bs4 import BeautifulSoup
-import urllib
-import urllib2
-import os
-import time
+import urllib, urllib2, os, time, webbrowser, re
 from urllib2 import urlopen, Request, URLError, HTTPError
-import webbrowser
-import re
 
 wikipedia = 'http://en.wikipedia.org/wiki/'
 

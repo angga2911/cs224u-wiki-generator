@@ -1,12 +1,8 @@
 #! /usr/bin/python
 
-from BeautifulSoup import BeautifulSoup
-import urllib
-import urllib2
-import os
-import time
+from bs4 import BeautifulSoup
+import urllib, urllib2, os, time, webbrowser
 from urllib2 import urlopen, Request, URLError, HTTPError
-import webbrowser
 
 random_article = 'http://en.wikipedia.org/wiki/Special:Random'
 dumper = 'http://en.wikipedia.org/w/index.php?title=Special:Export&action=submit'

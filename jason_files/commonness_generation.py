@@ -2,11 +2,12 @@
 
 import glob, re, json, os, time
 import xml.etree.cElementTree as etree
+from 
 
 namespace = "{http://www.mediawiki.org/xml/export-0.8/}"
 disamb_freq_map = {}
 
-source_dir = '500MB_FILES'
+source_dir = 'TEST'
 out_dir = 'COMMONNESS_MEAS'
 def add_link(term):
     if len(term) == 0:
@@ -34,6 +35,7 @@ def count_terms(links):
         l = l.split('|')[0]
         if good_term(l):
             add_link(l) 
+
 def good_term(link):
     if link.find('Image:') == 0:
         return False

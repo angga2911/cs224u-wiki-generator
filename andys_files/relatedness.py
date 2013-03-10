@@ -50,24 +50,24 @@ def relatednessFunction(articleA, articleB, articleLinks, functionNumber):
 # relatedness = relatednessFunction(articleA, articleB, articleLinks)
 # print relatedness
 
-def getRelatednessScore(dictionary, articleLinks):
+def getRelatednessScore(ambMap, articleLinks):
 	articleLinks = dict((k.lower(), [v_l.lower() for v_l in v]) for k, v in articleLinks.iteritems())
 	#print articleLinks
 
-	relatednessScores = {} # dictionary of relatedness scores for each sense of a word to surrounding unambiguous words
+	relatednessScores = [] # dictionary of relatedness scores for each sense of a word to surrounding unambiguous words
 	unambiguousWords = []
-	for key, value in dictionary.iteritems():
-		if len(value) == 1:
-			unambiguousWords.append(key)
+	for pair in ambMap:
+		if len(pair[1]) == 1: # the list of disambiguation is 1 (which is UNambiguous)
+			unambiguousWords.append(pair[0])
 
-	for key, ambWords in dictionary.iteritems():
-		if len(ambWords) > 1:
-			for ambWord in ambWords:
+	for pair in ambMap:
+		if len(pair[1]) > 1:
+			for ambWord in pair[1]:
 				relatedness = []
 				for unAmbWord in unambiguousWords:
 					relatedness.append(relatednessFunction(ambWord, unAmbWord, articleLinks,1))
 				relatednessResult = average(relatedness) 	
-				relatednessScores[(ambWord, key)] = relatednessResult
+				relatednessScores.append([ambWord, pair[0], relatednessResult])
 
 	return relatednessScores
 

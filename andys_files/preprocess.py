@@ -128,7 +128,7 @@ def preProcessLine(line):
 
 	return line
 
-file_path = 'AMBIGUITY_MAP/ambiguity.txt'
+file_path = 'AMBIGUITY_MAP/ambiguity.py'
 if not os.path.isfile(file_path):
 
 	_STOPWORDS = ['the', 'a', 'an', 'of', 'in', 'on', 'about', 'what', 'which', 'when', 'why', 'how', 'is', 'was', 

@@ -51,6 +51,7 @@ def relatednessFunction(articleA, articleB, articleLinks, functionNumber):
 # print relatedness
 
 def getRelatednessScore(ambMap, articleLinks):
+
 	articleLinks = dict((k.lower(), [v_l.lower() for v_l in v]) for k, v in articleLinks.iteritems())
 	#print articleLinks
 
@@ -65,7 +66,7 @@ def getRelatednessScore(ambMap, articleLinks):
 			for ambWord in pair[1]:
 				relatedness = []
 				for unAmbWord in unambiguousWords:
-					relatedness.append(relatednessFunction(ambWord, unAmbWord, articleLinks,1))
+					relatedness.append(relatednessFunction(ambWord, unAmbWord, articleLinks,2))
 				relatednessResult = average(relatedness) 	
 				relatednessScores.append([ambWord, pair[0], relatednessResult])
 
@@ -89,8 +90,8 @@ def findMaxN(n, someList):
 	return result
 
 def average(someList):
-	# if len(someList) > 2:
-	# 	someList = findMaxN(3, someList)
+	if len(someList) > 2:
+	 	someList = findMaxN(5, someList)
 	#return numpy.mean(someList)
 	return someList
 

@@ -3,7 +3,7 @@
 import glob, re, json, os, time
 import xml.etree.cElementTree as etree
 
-def add_link(title, link, link_map):
+def add_link(title, link):
     if link in link_map:
         link_map[link].append(title)
     else:
@@ -15,8 +15,8 @@ def h():
 def income():
     namespace = "{http://www.mediawiki.org/xml/export-0.8/}"
     link_map = {}
-    source_dir = '../jason_files/500MB_FILES'
-    out_dir = '../jason_files/INCOMING_LINKS'
+    source_dir = '500MB_FILES'
+    out_dir = 'INCOMING_LINKS'
     if not os.path.exists(out_dir):
     	os.makedirs(out_dir)
     
@@ -32,7 +32,7 @@ def income():
 	        for ttl in title:
 	            for txt in text:
 	                for link in re.findall('\[\[(.*?)\]\]', txt):
-                            #print "Hey"
+                            print "Hey"
 	                    add_link(ttl, link, link_map)
 	                  
     abs_dir_output = os.path.join(h(), out_dir, 'IL_'+str(int(time.time())) + '.xml')

@@ -4,6 +4,7 @@ from nltk.stem import WordNetLemmatizer
 import collections
 import pickle
 from jason_files import disambiguate
+from jason_files import generate_incoming_nodes as gin
 import relatedness
 
 
@@ -127,7 +128,7 @@ def preProcessLine(line):
 
 	return line
 
-file_path = 'AMBIGUITY_MAP/ambiguity.xml'
+file_path = 'AMBIGUITY_MAP/ambiguity.txt'
 if not os.path.isfile(file_path):
 
 	_STOPWORDS = ['the', 'a', 'an', 'of', 'in', 'on', 'about', 'what', 'which', 'when', 'why', 'how', 'is', 'was', 
@@ -197,15 +198,26 @@ else:
     exec 'ambMap =' + save 
 
 print "Opening article links..."
+# 
+# import glob 
+# path = glob.glob('../jason_files/INCOMING_LINKS/IL*.xml')[0]
+# print path
+# articleLinksFile = open(path, 'r')
+# 
+# save = articleLinksFile.read()
+# tempString = 'articleLinks =' + save
+# exec tempString
 
-import glob 
-path = glob.glob('../jason_files/INCOMING_LINKS/IL*.xml')[0]
-articleLinksFile = open(path, 'r')
 
-save = articleLinksFile.read()
-tempString = 'articleLinks =' + save
-exec tempString
-
+articleLinks = gin.income()
+#print articleLinks
+# i = 0
+# print "Hmm"
+# for key, value in articleLinks.iteritems():
+# 	if i > 100:
+# 		break
+# 	print key, value 
+# 	i += 1
 # print ambMap
 #print articleLinks
 
@@ -221,7 +233,8 @@ else:
 	print "Calculating relatedness..."
 	relatednessFile = open(relatednessPath, 'w')
 	scores = relatedness.getRelatednessScore(ambMap, articleLinks)
-	print scores
+	for score in scores:
+		print score
 	relatednessFile.write(str(scores))
 
 

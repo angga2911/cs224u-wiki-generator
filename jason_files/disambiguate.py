@@ -19,24 +19,25 @@ def disambiguate(keyword):
       html = response.read()
       wiki_page = BeautifulSoup(html)
       ulist = wiki_page.find(id='mw-content-text')
-      primary_tag = ulist.p
-      if primary_tag != None:
-        primary_link = primary_tag.a
-        if primary_link != None:
-          primary_link = primary_link['href'].rsplit('/',1)
-          if len(primary_link) > 1:
-            primary_link = primary_link[1]
-            if primary_link != None:
-              to_return.append(primary_link)
-      for ulchild in ulist.findAll('ul'):
-        for lichild in ulchild.findAll('li'):
-         for link in lichild.findAll('a'):
-            if len(link['href'])>1 and link['href'][0] != '#' and not 'disambiguation' in link['href']:
-              lnk = link['href'].rsplit('/', 1)
-              if len(lnk) > 1:
-                lnk = lnk[1]
-                if lnk != None:
-                  to_return.append(lnk)
+      if ulist != None:
+        primary_tag = ulist.p
+        if primary_tag != None:
+          primary_link = primary_tag.a
+          if primary_link != None:
+            primary_link = primary_link['href'].rsplit('/',1)
+            if len(primary_link) > 1:
+              primary_link = primary_link[1]
+              if primary_link != None:
+                to_return.append(primary_link)
+        for ulchild in ulist.findAll('ul'):
+          for lichild in ulchild.findAll('li'):
+           for link in lichild.findAll('a'):
+              if len(link['href'])>1 and link['href'][0] != '#' and not 'disambiguation' in link['href']:
+                lnk = link['href'].rsplit('/', 1)
+                if len(lnk) > 1:
+                  lnk = lnk[1]
+                  if lnk != None:
+                    to_return.append(lnk)
       return to_return
     except HTMLParseError, e:
       return [keyword]

@@ -10,7 +10,6 @@ namespace = "{http://www.mediawiki.org/xml/export-0.8/}"
 source_dir = '500MB_FILES'
 out_dir = 'COMMONNESS_MEAS'
 disam_freq_map = {}
-
 def add_link(term):
     disam_freq_map_ind = {}
     if len(term) == 0 or not good_term(term):
@@ -20,9 +19,7 @@ def add_link(term):
         disam_freq_map_ind[main_term] = {}
         disam_list = disambiguate.disambiguate(main_term)
         for term in disam_list:
-            if main_term in term:
-            	if term != main_term:
-            		print term + "----VS----" + main_term
+        	if main_term.find(term) != -1:
             	disam_freq_map_ind[main_term][term] = 0
     return disam_freq_map_ind
 

@@ -36,7 +36,7 @@ def findDisambiguation(start, chunkSize, dArticles):
     print "We will only get lists for disambiguation from article: " + str(start) + " to " + str(start + chunkSize)
 
     sample = dArticles[start:(start + chunkSize)]
-    pool = Pool(processes=100)
+    pool = Pool(processes=30)
     possibleSenses = pool.map(dis.disambiguate, sample)
     
     # possibleSensesMap = dict(zip(sample, possibleSenses))

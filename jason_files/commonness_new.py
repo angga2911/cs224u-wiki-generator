@@ -41,7 +41,7 @@ def findDisambiguation():
     while current:
         if keyPhrase in current:
             currentPhrase = current[:(-subtractOut - 1)].replace('_', ' ')
-            if isAscii(currentPhrase):
+            if isAscii(currentPhrase) and isAlpha(currentPhrase):
                 dArticles.append(currentPhrase) 
             # Remove the '\n' at the end of line
         current = f.readline()
@@ -94,6 +94,10 @@ def isAscii(s):
         if ord(s[i]) >= 128:
             return False
     return True
+
+
+def isAlpha(s, search=re.compile(r'[^a-zA-Z0-9. ]').search):
+    return not bool(search(s))
     
 
 if __name__ == '__main__':
@@ -111,6 +115,6 @@ if __name__ == '__main__':
     print commonnessMap    
     
     toc = time.clock()
-    s
+    
     print toc - tic
 

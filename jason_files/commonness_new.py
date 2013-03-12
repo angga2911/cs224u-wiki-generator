@@ -30,8 +30,22 @@ def findLinks():
     print "Find Links Done! There are " + str(len(totalLinks)) + " links in total!"
     return Counter(totalLinks)
     
-def findDisambiguation():
+def findDisambiguation(start, chunkSize, dArticles):
 
+    print "We will only get lists for disambiguation from article: " + str(start) + " to " + str(start + chunkSize - 1)
+
+    sample = dArticles[start:(start + chunkSize -1)]
+    pool = Pool(processes=100)
+    possibleSenses = pool.map(dis.disambiguate, sample)
+    
+    # possibleSensesMap = dict(zip(sample, possibleSenses))
+    # print possibleSensesMap
+    
+    print "DONE FOR dARTICLES #: " + str(start) + " to " + str(start + chunkSize - 1)
+    print "----------------"
+    return possibleSenses
+    
+def getdArticles():
     keyPhrase = "_(disambiguation)"
     subtractOut = len(keyPhrase)
     
@@ -50,43 +64,40 @@ def findDisambiguation():
     
     # print dArticles[30000]
     # print dArticles[40000]
-    
-    start = 30000 # default is 0
-    end = 80000 # default is len(dArticles)
-    print "We will only get lists for disambiguation from article: " + str(start) + " to " + str(end - 1)
-    sample = dArticles[start:end]
-
-    pool = Pool(processes=100)
-    possibleSenses = pool.map(dis.disambiguate, sample)
-    
-    # possibleSensesMap = dict(zip(sample, possibleSenses))
-    # print possibleSensesMap
-    
-    print "Find all the senses for those articles also done! Whew!"
-    
-    return possibleSenses
+    return dArticles
 
 # countMap as {'sense' : frequency}
 # possibleSenses as list of lists (each inner list represents one disambiguation page links)
-def calculateCommonness(possibleSenses, countMap):
+def calculateCommonness(countMap):
     #scoreMap = {}
     commonnessMap = {}
-    for word in possibleSenses:
-        totalFrequency = 0
-        for sense in word:
-            if sense in countMap:
-                totalFrequency += countMap[sense] 
-        #scoreMap[word] = totalFrequency
-        for sense in word:
-            if sense in countMap:
-                if sense in commonnessMap:
-                    if (countMap[sense] + 0.0) / totalFrequency > commonnessMap[sense]:
-                        commonnessMap[sense] = (((countMap[sense] + 0.0) / totalFrequency) + commonnessMap[sense]) / 2.0
-                else:
-                    commonnessMap[sense] = (countMap[sense] + 0.0) / totalFrequency
-            # else:
-#                 # There is no clue for this word. We should treat it as a word on its own
-#                 commonnessMap[sense] = 1
+    dArticles = getdArticles()
+    start = 0
+    chunkSize = 1000
+    while start < 2000:
+        possibleSenses = findDisambiguation(start, chunkSize, dArticles)
+        for word in possibleSenses:
+            totalFrequency = 0
+            for sense in word:
+                if sense in countMap:
+                    totalFrequency += countMap[sense] 
+            #scoreMap[word] = totalFrequency
+            for sense in word:
+                if sense in countMap:
+                    if sense in commonnessMap:
+                        if (countMap[sense] + 0.0) / totalFrequency > commonnessMap[sense]:
+                            commonnessMap[sense] = (((countMap[sense] + 0.0) / totalFrequency) + commonnessMap[sense]) / 2.0
+                    else:
+                        commonnessMap[sense] = (countMap[sense] + 0.0) / totalFrequency
+                # else:
+    #                 # There is no clue for this word. We should treat it as a word on its own
+    #                 commonnessMap[sense] = 1
+        start += chunkSize
+    
+    print "--------"
+    print "Normalized Version of Commonnness Map Has Been Calculated!!"
+    print "--------"
+    
     return commonnessMap
     
 def isAscii(s):
@@ -105,13 +116,10 @@ if __name__ == '__main__':
     import time
     tic = time.clock()
 
-    possibleSenses = findDisambiguation()
-    # countMap = {'Adobe_Type_Manager':3, 'Alternating_Turing_machine':5, 'Andrew_Martin':2, 'Adenosine_triphosphate':20, 'Automated_theorem_proving':33, '%2B1_button':50, 'UTC%2B1':10, '%2B1_(album)':15, 'Ordinal_number_(linguistics)':55, 'Verbal_noun':20}
     countMap = findLinks()
-    # countMap['Captain Scarlet'] = 20
-    # countMap['Crafts'] = 30
-    # print countMap
-    commonnessMap = calculateCommonness(possibleSenses, countMap)
+    commonnessMap = calculateCommonness(countMap)
+    # countMap = {'Adobe_Type_Manager':3, 'Alternating_Turing_machine':5, 'Andrew_Martin':2, 'Adenosine_triphosphate':20, 'Automated_theorem_proving':33, '%2B1_button':50, 'UTC%2B1':10, '%2B1_(album)':15, 'Ordinal_number_(linguistics)':55, 'Verbal_noun':20}
+    
     print commonnessMap    
     
     toc = time.clock()

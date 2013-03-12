@@ -269,8 +269,8 @@ if __name__ == '__main__':
     ambMap = buildAmbMap()
     articleLinks = gin.income()
     R = buildRelatedness() # This is the relatedness matrix
-    C1 = cmn.countMap # This is the count dictionary
-    C2 = cmn.commonnessMap # This is the "commonness" dictionary (i.e. normalized count)
+    C1 = cmn.findLinks() # This is the count dictionary
+    C2 = cmn.calculateCommonness(C1) # This is the "commonness" dictionary (i.e. normalized count)
     X = combine_rc(R, C1, False, False)
     # X = combine_rc(R, C2, False, False)
     for x in X:

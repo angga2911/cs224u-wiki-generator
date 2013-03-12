@@ -51,12 +51,12 @@ def findDisambiguation():
     # print dArticles[30000]
     # print dArticles[40000]
     
-    start = 0 # default is 0
-    end = len(dArticles) # default is len(dArticles)
+    start = 30000 # default is 0
+    end = 80000 # default is len(dArticles)
     print "We will only get lists for disambiguation from article: " + str(start) + " to " + str(end - 1)
     sample = dArticles[start:end]
 
-    pool = Pool(processes=10000)
+    pool = Pool(processes=100)
     possibleSenses = pool.map(dis.disambiguate, sample)
     
     # possibleSensesMap = dict(zip(sample, possibleSenses))

@@ -93,7 +93,7 @@ def average(someList):
 	if len(someList) > 2:
 	 	someList = findMaxN(5, someList)
 	#return numpy.mean(someList)
-	return someList
+	return numpy.mean(someList)
 
 # l = [3, 5, 2, 1, 6.3, 2]
 # max3 = findMaxN(3, l)

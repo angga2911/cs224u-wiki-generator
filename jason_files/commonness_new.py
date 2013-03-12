@@ -74,7 +74,7 @@ def calculateCommonness(countMap):
     dArticles = getdArticles()
     start = 0
     chunkSize = 1000
-    while start < 2000:
+    while start < len(dArticles):
         possibleSenses = findDisambiguation(start, chunkSize, dArticles)
         for word in possibleSenses:
             totalFrequency = 0

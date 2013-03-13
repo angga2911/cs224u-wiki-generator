@@ -31,7 +31,7 @@ def invalidURL(s):
     return False
     
 j = 0
-TARGET = 1000
+TARGET = 10
 while j < TARGET:
     terms = []
     for i in range(100):
@@ -65,9 +65,11 @@ while j < TARGET:
                # print "-----------"
                 if len(set_links) > 50: 
                     j = j + 1
-                    local_file.write("Article #" + str(j))
+                    #local_file.write("Article #" + str(j))
+                    local_file.write("<page>\n")
                     local_file.write(page)
-                    local_file.write("-------------------------------------------------\n")
+                    local_file.write("</page>\n")
+                    #local_file.write("-------------------------------------------------\n")
     except HTTPError, e:
         print "HTTP Error:", e.code, input_to_dump
     except URLError, e:

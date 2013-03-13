@@ -1,3 +1,4 @@
+from collections import Counter 
 def evaluationMetrics(real, predicted):
   if len(real) != len(predicted):
     print "Length not equal"
@@ -38,7 +39,7 @@ def getPredictedY(words, senses, predictor, rawXTesting, rawYTesting):
       preventConcatenate = rawXTesting[i][2]
       print rawXTesting[i][2]
       
-  print setOfIndicator
+  wordCount = Counter(setOfIndicator)
   for word in setOfIndicator:
     temp = []
     for j in range(len(rawXTesting)):
@@ -46,8 +47,6 @@ def getPredictedY(words, senses, predictor, rawXTesting, rawYTesting):
         temp.append([word, senses[j], predictor[j], j])
     all.append(sorted(temp, key = lambda temp: temp[2], reverse = True))
 
-  print all
-  
   print "----"
   
   print rawYTesting
@@ -66,7 +65,18 @@ def getPredictedY(words, senses, predictor, rawXTesting, rawYTesting):
   # Evaluate the result
   
   # checkTable = [[raw[i][2], raw[i][3]] for i in range(len(raw)) if (rawYTesting[i] == 1)]
-  predictedTrue = [elem[0][-1] for elem in all]
+  predictedTrue = []
+  for elem in all:
+    predictedTrue.append(elem[0][-1])
+    # print elem
+    # This takes care of redundant elements make sure all gets out!!! (This means the above labeling is lying to you in terms of the number, but it will give
+    # you the correct sense.
+    for i in range(1, len(elem)):
+        if elem[i][1] == elem[0][1]:
+            predictedTrue.append(elem[i][-1])
+        else:
+            break
+
   predictedY = [1 if i in predictedTrue else 0 for i in range(len(rawYTesting))]
   
   # print rawYTesting

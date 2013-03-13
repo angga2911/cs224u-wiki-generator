@@ -34,8 +34,10 @@ def findLinks():
 def findDisambiguation(start, chunkSize, dArticles):
 
     print "We will only get lists for disambiguation from article: " + str(start) + " to " + str(start + chunkSize)
-
-    sample = dArticles[start:(start + chunkSize)]
+    if start + chunkSize <= len(dArticles):
+        sample = dArticles[start:(start + chunkSize)]
+    else:
+        sample = dArticles[start:]
     pool = Pool(processes=30)
     possibleSenses = pool.map(dis.disambiguate, sample)
     
@@ -74,8 +76,8 @@ def calculateCommonness(countMap):
     commonnessMap = {}
     dArticles = getdArticles()
     start = 0
-    chunkSize = 1000
-    while start < 3001:
+    chunkSize = 50000
+    while start < len(dArticles):
         possibleSenses = findDisambiguation(start, chunkSize, dArticles)
         for word in possibleSenses:
             totalFrequency = 0

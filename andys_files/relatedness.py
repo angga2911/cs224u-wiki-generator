@@ -6,7 +6,7 @@ import numpy
 
 def relatednessFunction(articleA, articleB, articleLinks, functionNumber):
         
-        print 'calculating relatedness for ' + str(articleA) + ' and ' + str(articleB)
+        # print 'calculating relatedness for ' + str(articleA) + ' and ' + str(articleB)
         articleA = articleA.lower().replace('_', ' ')
         articleB = articleB.lower().replace('_', ' ')
 
@@ -36,11 +36,12 @@ def relatednessFunction(articleA, articleB, articleLinks, functionNumber):
                         relatedness = (math.log(maxAB) - math.log(numAB))/(len(articleLinks) - math.log(minAB))
                 elif functionNumber == 2:
                         relatedness = (math.log(numAB)+1)/(math.log(maxAB)+1)
-                print str(maxAB)
-                print str(minAB)
-                print str(numAB)
-                print str(relatedness)
-                print '------------------'
+#                 print str(maxAB)
+#                 print str(minAB)
+#                 print str(numAB)
+#                 print str(relatedness)
+#                 print '------------------'
+        
         return relatedness
 
 # articleLinks = {'Abraham_Lincoln': ['Andrew_Johnson'], 'Andrew_Johnson': ['Abraham_Lincoln']}

@@ -91,8 +91,7 @@ def processPageLine(line, inText, infoBox, allLinks, ambMap, _STOPWORDS, _ELIM, 
                                                                         """
                                                                         Check to see if trigram/bigram/unigram is in the list-
                                                                         """
-                                                                        
-                                                                        
+
                                                                         if articleTitles[trigram] == 1:
                                                                                 ## print 'here'
                                                                                 ## print trigram
@@ -109,29 +108,29 @@ def processPageLine(line, inText, infoBox, allLinks, ambMap, _STOPWORDS, _ELIM, 
                                                                                     index += 2
                                                                                 else:
                                                                                         if len(currWord) > 3 and (not currWord.lower() in _STOPWORDS):
-                                                                                                unigram = currWord
-#                                                                                               if articleTitles[unigram] == 1:
-#                                                                                                       ## print unigram
-#                                                                                                       unigramAmbWords = disambiguate.disambiguate(unigram)
-#                                                                                                       ambMap.append([unigram, unigramAmbWords])
-#                                                                                                       ## print unigramAmbWords
+                                                                                            unigram = currWord
+                                                                                            if articleTitles[unigram] == 1:
+                                                                                                ## print unigram
+                                                                                                unigramAmbWords = disambiguate.disambiguate(unigram)
+                                                                                                ambMap.append([unigram, unigramAmbWords])
+                                                                                                ## print unigramAmbWords
                                                                                         index += 1
                                                                 else:
                                                                         bigram = currWord + '_' + nextWord
                                                                         if articleTitles[bigram] == 1:
-                                                                                #print bigram
-                                                                                bigramAmbWords = disambiguate.disambiguate(bigram)
-                                                                                ambMap.append([bigram, bigramAmbWords])
-                                                                                index += 2
+                                                                            #print bigram
+                                                                            bigramAmbWords = disambiguate.disambiguate(bigram)
+                                                                            ambMap.append([bigram, bigramAmbWords])
+                                                                            index += 2
                                                                         else:
-                                                                                index += 1
+                                                                            index += 1
                                                         else:
                                                                 if len(currWord) > 3 and (not currWord.lower() in _STOPWORDS):
                                                                         unigram = currWord
-                                                                        # if articleTitles[unigram] == 1:
-#                                                                       #       #print unigram
-#                                                                               unigramAmbWords = disambiguate.disambiguate(unigram)
-#                                                                               ambMap.append([unigram, unigramAmbWords])
+                                                                        if articleTitles[unigram] == 1:
+                                                                      #     #print unigram
+                                                                            unigramAmbWords = disambiguate.disambiguate(unigram)
+                                                                            ambMap.append([unigram, unigramAmbWords])
                                                                 index += 1
 
                                 #print line
@@ -146,40 +145,27 @@ def preProcessLine(line):
 
         return line
 
-def buildAmbMap(wikiFile):
-    file_path = 'AMBIGUITY_MAP/ambiguity.py'
+def buildAmbMap(listOfLines, articleTitles):
+
 #    if not os.path.isfile(file_path):
     _STOPWORDS = ['the', 'a', 'an', 'of', 'in', 'on', 'about', 'what', 'which', 'when', 'why', 'how', 'is', 'was', 
     'are', 'were', 'am', 'i', 'as', 'to', 'and', "'s", ',', '.', '(', ')', 'with', '/', 'but', 'not', 'dids']
 
     _ELIM = ['the']
 
-    articleTitles = collections.defaultdict(lambda: 0)
-    f = open('title.txt', 'r')
-    for line in f:
-    #print line.strip()
-            articleTitles[line.strip()] = 1
-    f.close()
-
     # pkl_file = open('articleTitles.pkl', 'rb')
     # articleTitles = pickle.load(pkl_file)
     # pkl_file.close()
-
-    f = open(wikiFile, 'r')
     
-    inPage = False
+    # inPage = False
+    inPage = True
     inText = False
     infoBox = True
     lastLine = ''
     allLinks = []
     ambMap = []
-    for line in f:
+    for line in listOfLines:
             line = preProcessLine(line)
-    
-            if line == '<page>':
-                    inPage = True
-            if line == '</page>':
-                    inPage = False
     
             if '<text' in line:
                     inText = True
@@ -195,52 +181,67 @@ def buildAmbMap(wikiFile):
                     processPageLine(line, inText, infoBox, allLinks, ambMap, _STOPWORDS, _ELIM, articleTitles)
     
             lastLine = line
-    
-    f.close()
-
-    out_dir = 'AMBIGUITY_MAP'
-    if not os.path.exists(out_dir):
-        os.makedirs(out_dir)
-        
-    ambi = open(file_path,'w')
-    ambi.write(str(ambMap))
+       
+#     No longer need to store ambiguity map
+#     file_path = 'AMBIGUITY_MAP/ambiguity.py' 
+#     
+#     ambi = open(file_path,'a')
+#     for row in ambMap:
+#         ambi.write(str(row))
+#     
+#     ambi.close()
 
     return ambMap
 
 def buildRelatedness(ambMap, articleLinks):
     relatednessPath = '../andys_files/relatedness.txt'
     print "Calculating relatedness..."
-    relatednessFile = open(relatednessPath, 'w')
+
     scores = relatedness.getRelatednessScore(ambMap, articleLinks)
+    
+    print "-- Relatedness score table for this article --"
     for score in scores:
         print score
-    relatednessFile.write(str(scores))    
+    print "----------------------------------------------"
+    
     return scores
 
 def combine_rc(R, C, readFromFileR, readFromFileC, normalized):
     
+    print "We are in the RC combining process."
+    
     if readFromFileR:
+        
         rpath = '../andys_files/relatedness.txt'
+        print 'Currently reading R from file ' + rpath
+        
         if not os.path.isfile(rpath):
-                print "no r file"
+                print "The R file you are looking for does not exist"
                 return
         rfile = open(rpath, 'r')
         save = rfile.read()
         temp = 'R =' + save
         exec temp
+        
+        print "Finish reading R from file!"
     
     if readFromFileC:   
         if normalized:
             cpath = '../jason_files/commonness.txt'
         else:
             cpath = '../jason_files/count.txt'
+            
+        print 'Currently reading C from file ' + cpath
+    
         if not os.path.isfile(cpath):
-                print "no c file"
+                print "The C file you are looking for does not exist"
                 return
         cfile = open(cpath, 'r')
         save = cfile.read()
         temp = 'C =' + save
         exec temp
+        
+        print "Finish reading C from file!"
         
         #### Data Structure
         ####
@@ -249,13 +250,15 @@ def combine_rc(R, C, readFromFileR, readFromFileC, normalized):
         
         #print R
         #raw_input()
-        for sense in R:
-           dummySense = sense[0].replace('_',' ')
-           if dummySense in C:
-               sense.append(C[dummySense]) # get the corresponding commonnness for that sense
-           else:
-               # print "There's no such sense"
-               sense.append(1.0)
+
+    print "Combining R and C into X matrix ..."
+    for sense in R:
+       dummySense = sense[0].replace('_',' ')
+       if dummySense in C:
+           sense.append(C[dummySense]) # get the corresponding commonnness for that sense
+       else:
+           # print "There's no such sense"
+           sense.append(1.0)
 
     return R
     
@@ -283,6 +286,7 @@ namespace = "{http://www.mediawiki.org/xml/export-0.8/}"
 
 if __name__ == '__main__':
 
+
     if len(sys.argv) != 5:
         sys.exit("Need 4 arguments: usefileforR? usefileforC? normalizedC? wikiFile")
 
@@ -295,22 +299,98 @@ if __name__ == '__main__':
     articleLinks = gin.income()
     
     # just dummy initialization to pass into function
-    R = 0
-    C = 0
-    print readFromFileR, readFromFileC, normalized
+    R = []
+    C = []
+    
     if not readFromFileR:
-        ambMap = buildAmbMap(wikiFile)
-        R = buildRelatedness(ambMap, articleLinks) # This is the relatedness matrix
+        # We should build for each article one by one
+        # We first extract pages from wikiFile
+        
+        print "We are NOT going to read R from file"
+        
+
+            
+#         No longer need to show ambiguity map   
+#         out_dir = 'AMBIGUITY_MAP'
+#         if not os.path.exists(out_dir):
+#             os.makedirs(out_dir)     
+#         file_path = 'AMBIGUITY_MAP/ambiguity.py'
+#         ambi = open(file_path,'w')
+#         ambi.write('[')
+#         ambi.close()
+        
+        print "Trying to retrieve all titles ... (take long!) "
+        
+        articleTitles = collections.defaultdict(lambda: 0)
+        f = open('title.txt', 'r')
+        for line in f:
+        #print line.strip()
+            articleTitles[line.strip()] = 1
+        f.close()
+        
+        print "Finish retrieving titles"
+        
+        pages = open(wikiFile, 'r')
+        tempText = []
+        inPage = 0
+        
+        print "Will process each wiki page by page (starting from page 1)"
+        pageNumber = 0
+        for line in pages:
+            
+            line = preProcessLine(line)
+            if '</page>' in line:
+                tempText.append(line)
+                inPage = 0
+                # The page is complete. We can build ambiguity map from here
+                
+                print "Building Amb Map for page " + str(pageNumber)
+                
+                ambMap = buildAmbMap(tempText, articleTitles)
+                
+                print "Building R for that ambMap"
+                Rtemp = (buildRelatedness(ambMap, articleLinks))
+                
+                print "Concatenate the R table from page " + str(pageNumber) + " with the complete R"
+                R += Rtemp
+                
+                print "Finish page " + str(pageNumber)
+                print "======================"
+                tempText = []
+            elif inPage == 1:
+                tempText.append(line)
+            elif '<page>' in line:
+                pageNumber += 1
+                print "We are in page " + str(pageNumber)
+                tempText.append(line)
+                inPage = 1
+        
+#         No longer need to show ambiguity map
+#         file_path = 'AMBIGUITY_MAP/ambiguity.py'
+#         ambi = open(file_path,'a')      
+#         ambi.write(']')
+#         ambi.close()
+        
+        relatednessPath = '../andys_files/relatedness.txt'
+        relatednessFile = open(relatednessPath, 'w')
+        relatednessFile.write(str(R))
+        relatednessFile.close()
+
+        
     else:
-        file_path = 'AMBIGUITY_MAP/ambiguity.py'    
-        f = open(file_path, 'r')
-        save = f.read()
-        exec 'ambMap =' + save 
+        print "We are going to read R from file"   
+#         file_path = 'AMBIGUITY_MAP/ambiguity.py'    
+#         f = open(file_path, 'r')
+#         save = f.read()
+#         exec 'ambMap =' + save 
         
     if not readFromFileC:
+        print "We are NOT going to reading C from file"
         C = cmn.findLinks() # This is the count dictionary
         if normalized:
             C = cmn.calculateCommonness(C) # This is the "commonness" dictionary (i.e. normalized count)
+    else:
+        print "We are going to reading C from file"
     
     # user_input = raw_input()
     X = combine_rc(R, C, readFromFileR, readFromFileC, normalized)
@@ -318,6 +398,7 @@ if __name__ == '__main__':
     X = [[x[2], x[3], x[0], x[1]] for x in X] # Reorder to get [r c s w]
     # for x in X:
     #     print x
+    
     totalLinks = findLinks(wikiFile)
     Y = relatedness.getClassifierY(totalLinks, X, True)
     for i in range(min(len(X), len(totalLinks))):

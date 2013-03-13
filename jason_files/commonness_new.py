@@ -38,9 +38,11 @@ def findDisambiguation(start, chunkSize, dArticles):
         sample = dArticles[start:(start + chunkSize)]
     else:
         sample = dArticles[start:]
-    pool = Pool(processes=30)
+    
+    pool = Pool(processes=20)
     possibleSenses = pool.map(dis.disambiguate, sample)
     
+
     # possibleSensesMap = dict(zip(sample, possibleSenses))
     # print possibleSensesMap
     

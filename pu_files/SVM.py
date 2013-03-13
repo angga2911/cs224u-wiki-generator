@@ -1,14 +1,13 @@
-from sklearn import svm
-from dataForNB import *
+from sklearn import svm as sup
 import evaluation as evaluation
 
-def supportFunction():
-  X = [elem[0:1] for elem in raw]
+def supportFunction(rawX, rawY, rawXTesting, rawYTesting):
+  X = [elem[0:1] for elem in rawX]
   Y = rawY
-  senses = [elem[2] for elem in raw]
-  words = [elem[3] for elem in raw]
+  senses = [elem[2] for elem in rawX]
+  words = [elem[3] for elem in rawX]
   #modelr = svm.SVR()
-  modelr = svm.SVC(kernel = 'poly', degree = 2, probability = True)
+  modelr = sup.SVC(kernel = 'poly', degree = 2, probability = True)
   modelr.fit(X,Y)
   
   # This part needs to be changed to sample
@@ -18,6 +17,6 @@ def supportFunction():
   q = modelr.predict_proba(sampleX)
   predictedProb = [elem[1] for elem in q]
   
-  predictedY = evaluation.getPredictedY(words, senses, predictedProb)
-  print evaluation.evaluationMetrics(sampleY, predictedY)
+  predictedY = evaluation.getPredictedY(words, senses, predictedProb, rawXTesting, rawYTesting)
+  return evaluation.evaluationMetrics(sampleY, predictedY)
   

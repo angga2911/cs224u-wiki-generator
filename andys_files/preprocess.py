@@ -1,12 +1,12 @@
-import re, os
 from nltk.tokenize import word_tokenize, wordpunct_tokenize, sent_tokenize
 from nltk.stem import WordNetLemmatizer
-import collections
-import pickle
+import collections, pickle, re, os, sys, glob
+import xml.etree.cElementTree as etree
 from jason_files import disambiguate
 from jason_files import generate_incoming_nodes as gin
 from jason_files import commonness_new as cmn
-import relatedness
+from andys_files import relatedness
+from pu_files import multinomialNB
 
 def textLine(line):
 	if len(line) > 0:
@@ -43,7 +43,7 @@ def isAscii(s):
     return True
 
 
-def processPageLine(line, inText, infoBox, allLinks, ambMap):
+def processPageLine(line, inText, infoBox, allLinks, ambMap, _STOPWORDS, _ELIM, articleTitles):
 	wnl = WordNetLemmatizer()
 	if inText and not infoBox:
 		if not '==' in line:
@@ -93,7 +93,7 @@ def processPageLine(line, inText, infoBox, allLinks, ambMap):
 									"""
 									
 									
-									if articlesTitles[trigram] == 1:
+									if articleTitles[trigram] == 1:
 										## print 'here'
 										## print trigram
 										trigramAmbWords = disambiguate.disambiguate(trigram)
@@ -101,7 +101,7 @@ def processPageLine(line, inText, infoBox, allLinks, ambMap):
 										index += 3
 									else:
 										bigram = currWord + '_' + nextWord
-										if articlesTitles[bigram] == 1:
+										if articleTitles[bigram] == 1:
 										    ## print bigram
 										    bigramAmbWords = disambiguate.disambiguate(bigram)
 										    ambMap.append([bigram, bigramAmbWords])
@@ -110,7 +110,7 @@ def processPageLine(line, inText, infoBox, allLinks, ambMap):
 										else:
 											if len(currWord) > 3 and (not currWord.lower() in _STOPWORDS):
 												unigram = currWord
-# 												if articlesTitles[unigram] == 1:
+# 												if articleTitles[unigram] == 1:
 # 												 	## print unigram
 # 												 	unigramAmbWords = disambiguate.disambiguate(unigram)
 # 												 	ambMap.append([unigram, unigramAmbWords])
@@ -118,7 +118,7 @@ def processPageLine(line, inText, infoBox, allLinks, ambMap):
 											index += 1
 								else:
 									bigram = currWord + '_' + nextWord
-									if articlesTitles[bigram] == 1:
+									if articleTitles[bigram] == 1:
 										#print bigram
 										bigramAmbWords = disambiguate.disambiguate(bigram)
 										ambMap.append([bigram, bigramAmbWords])
@@ -128,7 +128,7 @@ def processPageLine(line, inText, infoBox, allLinks, ambMap):
 							else:
 								if len(currWord) > 3 and (not currWord.lower() in _STOPWORDS):
 									unigram = currWord
-									# if articlesTitles[unigram] == 1:
+									# if articleTitles[unigram] == 1:
 # 									#  	#print unigram
 # 										unigramAmbWords = disambiguate.disambiguate(unigram)
 # 										ambMap.append([unigram, unigramAmbWords])
@@ -146,7 +146,7 @@ def preProcessLine(line):
 
 	return line
 
-def buildAmbMap():
+def buildAmbMap(wikiFile):
     file_path = 'AMBIGUITY_MAP/ambiguity.py'
     if not os.path.isfile(file_path):
     
@@ -155,18 +155,18 @@ def buildAmbMap():
     
     	_ELIM = ['the']
     
-    	articlesTitles = collections.defaultdict(lambda: 0)
+    	articleTitles = collections.defaultdict(lambda: 0)
     	f = open('title.txt', 'r')
     	for line in f:
     	#print line.strip()
-    		articlesTitles[line.strip()] = 1
+    		articleTitles[line.strip()] = 1
     	f.close()
     
-    	# pkl_file = open('articlesTitles.pkl', 'rb')
-    	# articlesTitles = pickle.load(pkl_file)
+    	# pkl_file = open('articleTitles.pkl', 'rb')
+    	# articleTitles = pickle.load(pkl_file)
     	# pkl_file.close()
     
-    	f = open('tiny-wiki.xml', 'r')
+    	f = open(wikiFile, 'r')
     	
     	inPage = False
     	inText = False
@@ -193,7 +193,7 @@ def buildAmbMap():
     			infoBox = False;
     	
     		if inPage:
-    			processPageLine(line, inText, infoBox, allLinks, ambMap)
+    			processPageLine(line, inText, infoBox, allLinks, ambMap, _STOPWORDS, _ELIM, articleTitles)
     	
     		lastLine = line
     	
@@ -212,8 +212,8 @@ def buildAmbMap():
         
     return ambMap
 
-def buildRelatedness():
-    relatednessPath = 'relatedness.txt'
+def buildRelatedness(ambMap, articleLinks):
+    relatednessPath = '../andys_files/relatedness.txt'
     if os.path.isfile(relatednessPath):
     	print "Retrieving relatedness..."
     	relatednessFile = open(relatednessPath, 'r')
@@ -229,10 +229,10 @@ def buildRelatedness():
     	relatednessFile.write(str(scores))    
     return scores
 
-def combine_rc(R, C, readFromFileR, readFromFileC):
+def combine_rc(R, C, readFromFileR, readFromFileC, normalized):
     
     if readFromFileR:
-    	rpath = 'relatedness.txt'
+    	rpath = '../andys_files/relatedness.txt'
     	if not os.path.isfile(rpath):
     		print "no r file"
     		return
@@ -242,7 +242,10 @@ def combine_rc(R, C, readFromFileR, readFromFileC):
     	exec temp
     
     if readFromFileC:	
-    	cpath = '../jason_files/commonness.txt'
+        if normalized:
+            cpath = '../jason_files/commonness.txt'
+        else:
+            cpath = '../jason_files/count.txt'
     	if not os.path.isfile(cpath):
     		print "no c file"
     		return
@@ -256,23 +259,87 @@ def combine_rc(R, C, readFromFileR, readFromFileC):
 	# R is a list in this structure [[s,w,r],[s2,w2,r2],...]
 	# C is a dictionary {s:c, s2:c2, ...}
 	
+	#print R
+	#raw_input()
 	for sense in R:
-	   if sense[0] in C:
-	       sense.append(C[sense[0]]) # get the corresponding commonnness for that sense
+	   dummySense = sense[0].replace('_',' ')
+	   if dummySense in C:
+	       sense.append(C[dummySense]) # get the corresponding commonnness for that sense
 	   else:
-	       print "There's no such sense"
+	       # print "There's no such sense"
 	       sense.append(1.0)
 
     return R
+    
+def findLinks(wikiFile):
+    abs_dir_input = wikiFile
+    total_dir = glob.glob(abs_dir_input)
+    totalLinks = []
+    for fn in total_dir:
+        #print len(total_dir)
+        f = open(fn, 'r')
+        links = re.findall('\[\[(.*?)\]\]', f.read())
+        links = [[link.replace(' ','_').split('|')[0], link.replace(' ','_').split('|')[-1]] for link in links if isAlpha(link)] 
+        totalLinks += links
+    return totalLinks
+
+def isAlpha(s, search=re.compile(r'[^a-zA-Z0-9. _(),|]').search):
+    #Note period, space, parenthese, and underscore are allowed.
+    return not bool(search(s))
+    
+### GLOBALS ###
+
+namespace = "{http://www.mediawiki.org/xml/export-0.8/}"
+
+###############
 
 if __name__ == '__main__':
-    ambMap = buildAmbMap()
-    articleLinks = gin.income()
-    R = buildRelatedness() # This is the relatedness matrix
-    C1 = cmn.findLinks() # This is the count dictionary
-    C2 = cmn.calculateCommonness(C1) # This is the "commonness" dictionary (i.e. normalized count)
-    X = combine_rc(R, C1, False, False)
-    # X = combine_rc(R, C2, False, False)
-    for x in X:
-        print x
 
+    if len(sys.argv) != 5:
+        sys.exit("Need 4 arguments: usefileforR? usefileforC? normalizedC? wikiFile")
+
+    readFromFileR = 0 if sys.argv[1] == '0' else 1
+    readFromFileC = 0 if sys.argv[2] == '0' else 1
+    normalized = 0 if sys.argv[3] == '0' else 1
+    
+    wikiFile = sys.argv[4]
+    ambMap = buildAmbMap(wikiFile)
+    articleLinks = gin.income()
+    
+    # just dummy initialization to pass into function
+    R = 0
+    C = 0
+    print readFromFileR, readFromFileC, normalized
+    if not readFromFileR:
+        R = buildRelatedness(ambMap, articleLinks) # This is the relatedness matrix
+    if not readFromFileC:
+        C = cmn.findLinks() # This is the count dictionary
+        if normalized:
+            C = cmn.calculateCommonness(C) # This is the "commonness" dictionary (i.e. normalized count)
+    
+    # user_input = raw_input()
+    X = combine_rc(R, C, readFromFileR, readFromFileC, normalized)
+    # X = combine_rc(R, C2, False, False)
+    X = [[x[2], x[3], x[0], x[1]] for x in X] # Reorder to get [r c s w]
+    # for x in X:
+    #     print x
+    totalLinks = findLinks(wikiFile)
+    Y = relatedness.getClassifierY(totalLinks, X, True)
+    for i in range(min(len(X), len(totalLinks))):
+        print str(X[i]) + '\t\t\t' + str(totalLinks[i])
+    print Y
+    
+    newX = []
+    newY = []
+    for i in range(len(Y)):
+        if Y[i] != -1:
+            newX.append(X[i])
+            newY.append(Y[i])
+    X = newX
+    Y = newY 
+    
+    results = multinomialNB.runBoth(X, Y, X, Y) # The last two needs to be changed to the real one NOT THE PREDICTED ONE
+    
+    for result in results:
+        print result
+    

@@ -1,5 +1,3 @@
-from dataForNB import *
-
 def evaluationMetrics(real, predicted):
   if len(real) != len(predicted):
     print "Length not equal"
@@ -29,13 +27,16 @@ def evaluationMetrics(real, predicted):
       f1 = 2.0 * (precision * recall) / (0.0 + recall + precision)    
     return [precision, recall, f1]
     
-def getPredictedY(words, senses, predictor):
+def getPredictedY(words, senses, predictor, rawXTesting, rawYTesting):
   all = []
   setOfIndicator = []
   setOfIndicator.append(rawXTesting[0][3])
+  preventConcatenate = rawXTesting[0][2]
   for i in range(1, len(rawXTesting)):
-    if rawXTesting[i][3] != rawXTesting[i-1][3]:
+    if rawXTesting[i][3] != rawXTesting[i-1][3] or (rawXTesting[i][3] == rawXTesting[i-1][3] and rawXTesting[i][2] == preventConcatenate):
       setOfIndicator.append(rawXTesting[i][3])
+      preventConcatenate = rawXTesting[i][2]
+      print rawXTesting[i][2]
       
   print setOfIndicator
   for word in setOfIndicator:
@@ -45,9 +46,22 @@ def getPredictedY(words, senses, predictor):
         temp.append([word, senses[j], predictor[j], j])
     all.append(sorted(temp, key = lambda temp: temp[2], reverse = True))
 
+  print all
+  
+  print "----"
+  
+  print rawYTesting
   # Now we have the best disambiguation for each ambiguous link we detected
   for item in all:
     print "Word : " + str(item[0][0]) + " Label number: " + str(item[0][1]) +  " with probability: " + str(item[0][2]) + "This is sense # in total: " + str(item[0][3])
+  
+  print "Real result:"
+  
+  for i in range(len(rawYTesting)):
+    if rawYTesting[i] == 1:
+        print "Word : " + str(rawXTesting[i][3]) + " Label number: " + str(rawXTesting[i][2])
+        
+  print "------"
 
   # Evaluate the result
   
@@ -55,7 +69,7 @@ def getPredictedY(words, senses, predictor):
   predictedTrue = [elem[0][-1] for elem in all]
   predictedY = [1 if i in predictedTrue else 0 for i in range(len(rawYTesting))]
   
-  print rawYTesting
+  # print rawYTesting
   print predictedY
   
   return predictedY

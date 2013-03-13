@@ -153,17 +153,18 @@ def getClassifierY(links, xList, wantTrivial):
                         while k < len(xList):
                             word = xList[k][3]
                             sense = xList[k][2] 
-                            if links[i][1].lower() == word.lower():
+                            while links[i][1].lower() == word.lower():
                                 if links[i][0].lower() == sense.lower():
                                     output[k] = 1
                                 else:
                                     output[k] = 0
-                            else:
-                                break
-                            k = k + 1
+                        break
                 j += 1
             
+
 # try to retreive the Y
+
+
         return output
 
 

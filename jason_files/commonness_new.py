@@ -115,6 +115,11 @@ def isAlpha(s, search=re.compile(r'[^a-zA-Z0-9. ]').search):
 if __name__ == "__main__":
     countMap = findLinks()
     commonnessMap = calculateCommonness(countMap)
+    countMap = dict(countMap)
+    f = open('../jason_files/commonness.txt', 'w')
+    g = open('../jason_files/count.txt', 'w')
+    f.write(str(commonnessMap))
+    g.write(str(countMap))
 # countMap = {'Adobe_Type_Manager':3, 'Alternating_Turing_machine':5, 'Andrew_Martin':2, 'Adenosine_triphosphate':20, 'Automated_theorem_proving':33, '%2B1_button':50, 'UTC%2B1':10, '%2B1_(album)':15, 'Ordinal_number_(linguistics)':55, 'Verbal_noun':20}
 
 # print commonnessMap    

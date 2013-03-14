@@ -31,6 +31,7 @@ def findLinks():
     print "Find Links Done! There are " + str(len(totalLinks)) + " links in total!"
     return Counter(totalLinks)
     
+pool = Pool(processes = 100)
 def findDisambiguation(start, chunkSize, dArticles):
 
     print "We will only get lists for disambiguation from article: " + str(start) + " to " + str(start + chunkSize)
@@ -39,10 +40,8 @@ def findDisambiguation(start, chunkSize, dArticles):
     else:
         sample = dArticles[start:]
     
-    pool = Pool(processes=20)
     possibleSenses = pool.map(dis.disambiguate, sample)
     
-
     # possibleSensesMap = dict(zip(sample, possibleSenses))
     # print possibleSensesMap
     
@@ -78,7 +77,7 @@ def calculateCommonness(countMap):
     commonnessMap = {}
     dArticles = getdArticles()
     start = 0
-    chunkSize = 50000
+    chunkSize = 10000
     while start < len(dArticles):
         possibleSenses = findDisambiguation(start, chunkSize, dArticles)
         for word in possibleSenses:

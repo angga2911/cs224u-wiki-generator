@@ -264,6 +264,8 @@ def combine_rc(R, C, readFromFileR, readFromFileC, normalized):
        else:
            # print "There's no such sense"
            sense.append(1.0)
+    
+    print "We have the X matrix..."
 
     return R
     
@@ -379,8 +381,8 @@ if __name__ == '__main__':
                         R += r
                     ambMapList = []
 
-                if n == 60:
-                    break
+               #  if n == 60:
+#                     break
 
 
             elif inPage == 1:
@@ -424,10 +426,12 @@ if __name__ == '__main__':
     # user_input = raw_input()
     X = combine_rc(R, C, readFromFileR, readFromFileC, normalized)
     # X = combine_rc(R, C2, False, False)
+    print "Rearrange"
     X = [[x[2], x[3], x[0], x[1]] for x in X] # Reorder to get [r c s w]
     # for x in X:
     #     print x
     
+    print "Getting Y Vector ..."
     totalLinks = findLinks(wikiFile)
     Y = relatedness.getClassifierY(totalLinks, X, True)
     for i in range(min(len(X), len(totalLinks))):
@@ -442,6 +446,8 @@ if __name__ == '__main__':
             newY.append(Y[i])
     X = newX
     Y = newY 
+    
+    print "Starting Evaluations"
     
     results = multinomialNB.runAll(X, Y, X, Y) # The last two needs to be changed to the real one NOT THE PREDICTED ONE
     

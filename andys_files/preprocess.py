@@ -379,6 +379,10 @@ if __name__ == '__main__':
                         R += r
                     ambMapList = []
 
+                if n == 60:
+                    break
+
+
             elif inPage == 1:
                 tempText.append(line)
             elif '<page>' in line:

@@ -9,9 +9,7 @@ from andys_files import relatedness
 from pu_files import multinomialNB
 from multiprocessing import Pool
 
-## GLOBAL
 
-termsNeeded = []
 
 def textLine(line):
         if len(line) > 0:
@@ -200,7 +198,7 @@ def buildAmbMap(listOfLines, articleTitles):
 #     ambi.close()
 
 
-def buildRelatedness(ambMap, articleLinks):
+def buildRelatedness(ambMap):
     relatednessPath = '../andys_files/relatedness.txt'
     print "Calculating relatedness..."
 
@@ -288,6 +286,9 @@ def isAlpha(s, search=re.compile(r'[^a-zA-Z0-9. _(),|]').search):
 ### GLOBALS ###
 
 namespace = "{http://www.mediawiki.org/xml/export-0.8/}"
+termsNeeded = []
+articleLinks = gin.income()
+pool = Pool(processes = 120)
 
 ###############
 
@@ -303,7 +304,6 @@ if __name__ == '__main__':
     
     wikiFile = sys.argv[4]
     
-    articleLinks = gin.income()
     
     # just dummy initialization to pass into function
     R = []
@@ -342,6 +342,11 @@ if __name__ == '__main__':
         print "Will process each wiki page by page (starting from page 1)"
         pageNumber = 0
         
+        ambMapList = []
+        
+        n = 0
+        
+        
         for line in pages:
             
             line = preProcessLine(line)
@@ -350,11 +355,29 @@ if __name__ == '__main__':
                 inPage = 0
                 # The page is complete. We can build ambiguity map from here
                 
-                print "Collecting n-grams from page# " + str(pageNumber)
+                print "Collecting n-grams and building disambiguation list from page# " + str(pageNumber)
                 
                 buildAmbMap(tempText, articleTitles)
+                
+                print "Building disambiguation map"
+                
+                disambList = pool.map(dis.disambiguate, termsNeeded)
+                ambMap = [[termsNeeded[i], disambList[i]] for i in range(len(termsNeeded))]
+                #print ambMap
+                ambMapList.append(ambMap)
+                
+                termsNeeded = []
                 # This will update the termsNeeded
                 tempText = []
+                
+                n += 1
+                
+                # do this every 10 page to prevent memory overload
+                if n % 10 == 0:
+                    RList = pool.map(buildRelatedness, ambMapList)
+                    for r in RList:
+                        R += r
+                    ambMapList = []
 
             elif inPage == 1:
                 tempText.append(line)
@@ -363,14 +386,8 @@ if __name__ == '__main__':
                 print "We are in page " + str(pageNumber)
                 tempText.append(line)
                 inPage = 1
-        
-        print "Building disambiguation map"
-        pool = Pool(processes = 30)
-        disambList = pool.map(dis.disambiguate, termsNeeded)
-        
-        ambMap = [[termsNeeded[i], disambList[i]] for i in range(len(termsNeeded))]
-        #print ambMap
-        R = buildRelatedness(ambMap, articleLinks)
+
+
         #for r in R:
         #    print r
         

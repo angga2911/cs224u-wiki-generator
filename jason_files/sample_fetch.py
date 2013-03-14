@@ -31,7 +31,7 @@ def invalidURL(s):
     return False
     
 j = 0
-TARGET = 10
+TARGET = 200
 while j < TARGET:
     terms = []
     for i in range(100):

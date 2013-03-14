@@ -414,7 +414,7 @@ if __name__ == '__main__':
     X = newX
     Y = newY 
     
-    results = multinomialNB.runBoth(X, Y, X, Y) # The last two needs to be changed to the real one NOT THE PREDICTED ONE
+    results = multinomialNB.runAll(X, Y, X, Y) # The last two needs to be changed to the real one NOT THE PREDICTED ONE
     
     for result in results:
         print result

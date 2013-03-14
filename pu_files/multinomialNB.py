@@ -27,7 +27,7 @@ def multinomialNB(rawX, rawY, rawXTesting, rawYTesting):
   
 # return precision, recall, f1 of binary lists
 
-def runBoth(rawX, rawY,  rawXTesting, rawYTesting): 
+def runAll(rawX, rawY,  rawXTesting, rawYTesting): 
   print "\n\nMultinomial NB\n\n"
   nb = multinomialNB(rawX, rawY,  rawXTesting, rawYTesting)
   print "\n\nSVM\n\n"
@@ -35,4 +35,4 @@ def runBoth(rawX, rawY,  rawXTesting, rawYTesting):
   return [nb, svm]
 
 if __name__ == '__main__':
-  runBoth(rawX, rawY,  rawXTesting, rawYTesting)
+  runAll(rawX, rawY,  rawXTesting, rawYTesting)

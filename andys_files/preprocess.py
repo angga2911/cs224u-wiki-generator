@@ -2,11 +2,16 @@ from nltk.tokenize import word_tokenize, wordpunct_tokenize, sent_tokenize
 from nltk.stem import WordNetLemmatizer
 import collections, pickle, re, os, sys, glob
 import xml.etree.cElementTree as etree
-from jason_files import disambiguate
+from jason_files import disambiguate as dis
 from jason_files import generate_incoming_nodes as gin
 from jason_files import commonness_new as cmn
 from andys_files import relatedness
 from pu_files import multinomialNB
+from multiprocessing import Pool
+
+## GLOBAL
+
+termsNeeded = []
 
 def textLine(line):
         if len(line) > 0:
@@ -43,7 +48,7 @@ def isAscii(s):
     return True
 
 
-def processPageLine(line, inText, infoBox, allLinks, ambMap, _STOPWORDS, _ELIM, articleTitles):
+def processPageLine(line, inText, infoBox, allLinks, _STOPWORDS, _ELIM, articleTitles):
         wnl = WordNetLemmatizer()
         if inText and not infoBox:
                 if not '==' in line:
@@ -95,15 +100,17 @@ def processPageLine(line, inText, infoBox, allLinks, ambMap, _STOPWORDS, _ELIM, 
                                                                         if articleTitles[trigram] == 1:
                                                                                 ## print 'here'
                                                                                 ## print trigram
-                                                                                trigramAmbWords = disambiguate.disambiguate(trigram)
-                                                                                ambMap.append([trigram, trigramAmbWords])
+                                                                                termsNeeded.append(trigram)
+                                                                                #trigramAmbWords = disambiguate.disambiguate(trigram)
+                                                                                #ambMap.append([trigram, trigramAmbWords])
                                                                                 index += 3
                                                                         else:
                                                                                 bigram = currWord + '_' + nextWord
                                                                                 if articleTitles[bigram] == 1:
                                                                                     ## print bigram
-                                                                                    bigramAmbWords = disambiguate.disambiguate(bigram)
-                                                                                    ambMap.append([bigram, bigramAmbWords])
+                                                                                    termsNeeded.append(bigram)
+                                                                                    #bigramAmbWords = disambiguate.disambiguate(bigram)
+                                                                                    #ambMap.append([bigram, bigramAmbWords])
                                                                                     ## print bigram
                                                                                     index += 2
                                                                                 else:
@@ -111,16 +118,18 @@ def processPageLine(line, inText, infoBox, allLinks, ambMap, _STOPWORDS, _ELIM, 
                                                                                             unigram = currWord
                                                                                             if articleTitles[unigram] == 1:
                                                                                                 ## print unigram
-                                                                                                unigramAmbWords = disambiguate.disambiguate(unigram)
-                                                                                                ambMap.append([unigram, unigramAmbWords])
+                                                                                                termsNeeded.append(unigram)
+                                                                                                #unigramAmbWords = disambiguate.disambiguate(unigram)
+                                                                                                #ambMap.append([unigram, unigramAmbWords])
                                                                                                 ## print unigramAmbWords
                                                                                         index += 1
                                                                 else:
                                                                         bigram = currWord + '_' + nextWord
                                                                         if articleTitles[bigram] == 1:
                                                                             #print bigram
-                                                                            bigramAmbWords = disambiguate.disambiguate(bigram)
-                                                                            ambMap.append([bigram, bigramAmbWords])
+                                                                            termsNeeded.append(bigram)
+                                                                            #bigramAmbWords = disambiguate.disambiguate(bigram)
+                                                                            #ambMap.append([bigram, bigramAmbWords])
                                                                             index += 2
                                                                         else:
                                                                             index += 1
@@ -129,11 +138,10 @@ def processPageLine(line, inText, infoBox, allLinks, ambMap, _STOPWORDS, _ELIM, 
                                                                         unigram = currWord
                                                                         if articleTitles[unigram] == 1:
                                                                       #     #print unigram
-                                                                            unigramAmbWords = disambiguate.disambiguate(unigram)
-                                                                            ambMap.append([unigram, unigramAmbWords])
+                                                                            termsNeeded.append(unigram)
+                                                                            #unigramAmbWords = disambiguate.disambiguate(unigram)
+                                                                            #ambMap.append([unigram, unigramAmbWords])
                                                                 index += 1
-
-                                #print line
 
 def preProcessLine(line):
         line = line.strip()
@@ -163,7 +171,7 @@ def buildAmbMap(listOfLines, articleTitles):
     infoBox = True
     lastLine = ''
     allLinks = []
-    ambMap = []
+
     for line in listOfLines:
             line = preProcessLine(line)
     
@@ -178,7 +186,7 @@ def buildAmbMap(listOfLines, articleTitles):
                     infoBox = False;
     
             if inPage:
-                    processPageLine(line, inText, infoBox, allLinks, ambMap, _STOPWORDS, _ELIM, articleTitles)
+                    processPageLine(line, inText, infoBox, allLinks, _STOPWORDS, _ELIM, articleTitles)
     
             lastLine = line
        
@@ -191,7 +199,6 @@ def buildAmbMap(listOfLines, articleTitles):
 #     
 #     ambi.close()
 
-    return ambMap
 
 def buildRelatedness(ambMap, articleLinks):
     relatednessPath = '../andys_files/relatedness.txt'
@@ -307,8 +314,6 @@ if __name__ == '__main__':
         # We first extract pages from wikiFile
         
         print "We are NOT going to read R from file"
-        
-
             
 #         No longer need to show ambiguity map   
 #         out_dir = 'AMBIGUITY_MAP'
@@ -336,6 +341,7 @@ if __name__ == '__main__':
         
         print "Will process each wiki page by page (starting from page 1)"
         pageNumber = 0
+        
         for line in pages:
             
             line = preProcessLine(line)
@@ -344,19 +350,12 @@ if __name__ == '__main__':
                 inPage = 0
                 # The page is complete. We can build ambiguity map from here
                 
-                print "Building Amb Map for page " + str(pageNumber)
+                print "Collecting n-grams from page# " + str(pageNumber)
                 
-                ambMap = buildAmbMap(tempText, articleTitles)
-                
-                print "Building R for that ambMap"
-                Rtemp = (buildRelatedness(ambMap, articleLinks))
-                
-                print "Concatenate the R table from page " + str(pageNumber) + " with the complete R"
-                R += Rtemp
-                
-                print "Finish page " + str(pageNumber)
-                print "======================"
+                buildAmbMap(tempText, articleTitles)
+                # This will update the termsNeeded
                 tempText = []
+
             elif inPage == 1:
                 tempText.append(line)
             elif '<page>' in line:
@@ -364,6 +363,16 @@ if __name__ == '__main__':
                 print "We are in page " + str(pageNumber)
                 tempText.append(line)
                 inPage = 1
+        
+        print "Building disambiguation map"
+        pool = Pool(processes = 30)
+        disambList = pool.map(dis.disambiguate, termsNeeded)
+        
+        ambMap = [[termsNeeded[i], disambList[i]] for i in range(len(termsNeeded))]
+        #print ambMap
+        R = buildRelatedness(ambMap, articleLinks)
+        #for r in R:
+        #    print r
         
 #         No longer need to show ambiguity map
 #         file_path = 'AMBIGUITY_MAP/ambiguity.py'
@@ -375,7 +384,6 @@ if __name__ == '__main__':
         relatednessFile = open(relatednessPath, 'w')
         relatednessFile.write(str(R))
         relatednessFile.close()
-
         
     else:
         print "We are going to read R from file"   

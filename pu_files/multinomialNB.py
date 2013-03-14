@@ -1,5 +1,6 @@
 import numpy as np
 import SVM as support
+import kmeans
 import evaluation as evaluation
 from sklearn.naive_bayes import MultinomialNB, BernoulliNB
 
@@ -32,7 +33,8 @@ def runAll(rawX, rawY,  rawXTesting, rawYTesting):
   nb = multinomialNB(rawX, rawY,  rawXTesting, rawYTesting)
   print "\n\nSVM\n\n"
   svm = support.supportFunction(rawX, rawY,  rawXTesting, rawYTesting)
-  return [nb, svm]
+  km = kmeans.kmeansFunction(rawX, rawY, rawXTesting, rawYTesting)
+  return [nb, svm, km]
 
 if __name__ == '__main__':
   runAll(rawX, rawY,  rawXTesting, rawYTesting)
